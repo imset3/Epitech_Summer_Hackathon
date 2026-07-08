@@ -1,0 +1,39 @@
+{
+  "sources": [
+    {
+      "name": "Le Monde",
+      "aliases": ["lemonde", "le_monde", "le monde"],
+      "trust": 0.92,
+      "reach": 0.90,
+      "notes": "Established national newspaper. Strong editorial process."
+    },
+    {
+      "name": "ARTE",
+      "aliases": ["arte"],
+      "trust": 0.88,
+      "reach": 0.75,
+      "notes": "Public cultural broadcaster. Strong documentary/editorial standards."
+    },
+    {
+      "name": "Brut",
+      "aliases": ["brut"],
+      "trust": 0.72,
+      "reach": 0.78,
+      "notes": "Social-first media. Useful for visibility, but often shorter context."
+    },
+    {
+      "name": "AFP",
+      "aliases": ["afp", "agence france presse", "agence-france-presse"],
+      "trust": 0.94,
+      "reach": 0.85,
+      "notes": "Wire agency; often close to primary reporting."
+    },
+    {
+      "name": "Independent / Unknown",
+      "aliases": ["independent", "unknown", "blog", "local"],
+      "trust": 0.50,
+      "reach": 0.30,
+      "notes": "Default when no known source is detected. Adjust per publication."
+    }
+  ]
+}
