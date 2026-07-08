@@ -29,6 +29,20 @@
       "notes": "Wire agency; often close to primary reporting."
     },
     {
+      "name": "France24",
+      "aliases": ["france24", "france_24"],
+      "trust": 0.85,
+      "reach": 0.60,
+      "notes": "Use as a high-confidence source for broad factual framing, especially when carrying AFP copy."
+    },
+    {
+      "name": "CNews",
+      "aliases": ["cnews"],
+      "trust": 0.60,
+      "reach": 0.40,
+      "notes": "Useful for detecting what is being said in French media, but assign less weight than primary scientific institutions or international wires."
+    },
+    {
       "name": "Independent / Unknown",
       "aliases": ["independent", "unknown", "blog", "local"],
       "trust": 0.50,
