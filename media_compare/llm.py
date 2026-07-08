@@ -140,12 +140,15 @@ Rules:
 - Never erase a conflict by choosing only the smoother or majority version.
 - Give more importance to sources with higher trust, but still note when several lower-weight sources agree.
 - Prefer the story version that is both coherent and corroborated.
+- Use the supplied dates, years, and locations as guardrails: if articles share a broad theme but point to different times or places, lower coherence and say that more data is needed instead of pretending certainty.
+- If location or date details conflict inside a cluster, mention that as uncertainty unless the texts clearly explain that one article is giving background context.
 - Produce a real recap body, not just a headline. The body should compile the event, location, timing, consequences, official response, witness claims, uncertainty, and follow-up actions when present.
 - The compiled_body should normally be 1 paragraph of 5 to 9 sentences. Use 2 paragraphs only if the story is dense.
 - Put disputed or volatile details in volatile_elements so the report can display a separate conflict section.
 - In compiled_body, briefly mention that a conflict exists, but do not rely on the paragraph as the only place where the conflict appears.
 - If locally detected volatile claim candidates are listed, include them in volatile_elements and mention the uncertainty in compiled_body.
 - Percentages are support estimates based on source trust/reach weights and corroboration inside this cluster. They are not mathematical proof.
+- Do not invent missing dates or locations. If they are absent, say the timing or location is not confirmed by the supplied files.
 - Do not attach percentages to source names or stable claims. Use percentages only inside volatile_elements options.
 - Example: "Fire at a chemical factory near Lyon: (60%) 15 injured | (12%) 2 dead and 13 injured, while a large smoke cloud spread around the site and authorities evacuated nearby streets."
 - If a volatile element has more than two versions, put the two most important or most representative versions in option_1 and option_2.

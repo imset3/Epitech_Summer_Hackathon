@@ -10,19 +10,24 @@ The recap format is designed for volatile details:
 
 1. Reads only `.txt` files from a folder.
 2. Detects the source from either metadata or the filename.
-3. Groups similar files into story clusters using local text similarity.
-4. Scores clusters using:
+3. Extracts lightweight date/time and location signals from metadata and article text.
+4. Groups similar files into story clusters using local text similarity plus date/location guardrails.
+5. Blocks likely false merges when articles have the same or close date but different locations, or clearly incompatible dates.
+6. Scores clusters using:
    - number of files,
    - number of distinct sources,
    - source trust and reach weights,
-   - local similarity.
-5. Calls the selected LLM provider to produce:
+   - local similarity,
+   - similarity coverage, which is safer than average similarity on larger clusters,
+   - date/location guardrail consistency.
+7. Calls the selected LLM provider to produce:
    - suggested headline,
    - most supported version,
    - detailed compiled recap body,
    - volatile elements as `(XX%) option 1 | (YY%) option 2`,
    - source notes.
-6. Writes only a Markdown report.
+8. Adds a recap-confidence metric that tells the reader whether the recap is probably usable or whether more data should be gathered.
+9. Writes only a Markdown report.
 
 ## Run
 
@@ -101,15 +106,45 @@ Example:
 }
 ```
 
-`trust` matters more than `reach` in the prototype score.
+`trust` still matters more than `reach`, but both are kept in the support logic.
+
+
+## Date/location guardrails
+
+The prototype now extracts simple signals such as:
+
+```text
+DATE: 2026-07-08
+PUBLICATION_DATE: 2026-07-08
+LOCATION: Lyon
+PLACE: Lyon
+CITY: Lyon
+COUNTRY: France
+```
+
+Metadata dates are treated as the primary date signal. Dates found inside the body are used only when metadata does not provide a usable date, because body dates are often background references rather than the event date.
+
+The guardrail is conservative:
+
+- same or close date + shared location can slightly help a merge,
+- same or close date + different locations blocks a likely false merge,
+- dates that are far apart block a likely false merge,
+- missing date/location data does not block by itself.
+
+The report also shows:
+
+- `Similarity coverage`: whether each article has at least one good local neighbour in the cluster,
+- `Best-neighbour similarity`: a less fragile metric than all-pair average similarity,
+- `Date/location guardrail score`,
+- `Recap confidence`: High / Medium / Low with a recommendation to trust the recap or search for more data.
 
 ## Notes and limitations
 
 This is not fact-checking by itself. It compares the supplied texts and asks the model to synthesize them. For a real system, add:
 
-- URLs and publication dates,
+- canonical URLs and better publication/event-date separation,
 - deduplication by canonical URL,
-- named entity extraction,
+- production-grade named entity extraction for locations,
 - embeddings-based clustering,
 - source-specific trust profiles by topic,
 - quote extraction,

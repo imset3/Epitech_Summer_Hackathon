@@ -24,6 +24,13 @@ class SourceProfile:
 
 
 @dataclass
+class ArticleSignals:
+    dates: list[str] = field(default_factory=list)
+    years: list[str] = field(default_factory=list)
+    locations: list[str] = field(default_factory=list)
+
+
+@dataclass
 class Article:
     article_id: str
     path: Path
@@ -31,6 +38,7 @@ class Article:
     title: str
     body: str
     metadata: dict[str, str] = field(default_factory=dict)
+    signals: ArticleSignals = field(default_factory=ArticleSignals)
 
     @property
     def short_name(self) -> str:
@@ -43,6 +51,10 @@ class StoryCluster:
     articles: list[Article]
     score: float
     avg_similarity: float
+    avg_best_similarity: float = 0.0
+    similarity_coverage: float = 0.0
+    guardrail_notes: list[str] = field(default_factory=list)
+    guardrail_score: float = 0.0
 
     @property
     def distinct_sources(self) -> list[str]:
@@ -73,6 +85,9 @@ class StoryCluster:
                     "support_weight": a.source.support_weight,
                     "title": a.title,
                     "file": str(a.path),
+                    "dates": a.signals.dates,
+                    "years": a.signals.years,
+                    "locations": a.signals.locations,
                     "text": a.body[:max_chars_per_article],
                 }
                 for a in self.articles

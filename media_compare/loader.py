@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
+from .guardrails import extract_article_signals
 from .models import Article, SourceProfile
 from .sources import detect_source
 
@@ -16,6 +17,15 @@ SUPPORTED_METADATA_KEYS = {
     "language",
     "url",
     "author",
+    "event_date",
+    "published",
+    "datetime",
+    "time",
+    "location",
+    "place",
+    "city",
+    "country",
+    "region",
 }
 
 
@@ -82,6 +92,7 @@ def load_articles(folder: Path, sources: list[SourceProfile]) -> list[Article]:
         ])
         source = detect_source(hint, sources)
         title = metadata.get("title") or _fallback_title(path, body)
+        signals = extract_article_signals(title, body, metadata)
 
         digest = hashlib.sha1(str(path).encode("utf-8")).hexdigest()[:10]
         articles.append(
@@ -92,6 +103,7 @@ def load_articles(folder: Path, sources: list[SourceProfile]) -> list[Article]:
                 title=title,
                 body=body,
                 metadata=metadata,
+                signals=signals,
             )
         )
     return articles
