@@ -52,7 +52,7 @@ LOCATION_STOPWORDS = WEEKDAYS | {
 LOCATION_METADATA_KEYS = ("location", "place", "city", "country", "region")
 DATE_METADATA_KEYS = ("event_date", "date", "publication_date", "published", "datetime", "time")
 
-ISO_DATE_RE = re.compile(r"\b(20\d{2}|19\d{2})-(\d{1,2})-(\d{1,2})\b")
+ISO_DATE_RE = re.compile(r"(?<!\d)(20\d{2}|19\d{2})-(\d{1,2})-(\d{1,2})(?!\d)")
 DMY_RE = re.compile(
     r"\b(\d{1,2})\s+"
     r"(January|February|March|April|May|June|July|August|September|October|November|December|"
@@ -195,7 +195,12 @@ def extract_article_signals(title: str, body: str, metadata: dict[str, str]) -> 
         if raw and _is_probable_location(raw):
             locations.append(_display_location(raw))
 
-    for line in combined_text.splitlines():
+    # Locations are strongest in the title and lead. Scanning a full article can
+    # accidentally collect background/context places, or page furniture when
+    # extraction is imperfect. Keep the guardrail conservative by using only the
+    # title plus the beginning of the extracted article.
+    location_text = f"{title}\n{body[:4500]}"
+    for line in location_text.splitlines():
         for match in LOCATION_RE.finditer(line):
             candidate = _display_location(match.group(1))
             # Avoid swallowing a following phrase that starts with a capitalized word.
@@ -378,7 +383,9 @@ def cluster_guardrail_notes(cluster: StoryCluster) -> tuple[list[str], float]:
             if len(ids) >= 2
         ]
         if shared:
-            notes.append(f"Location guardrail: shared location signal(s) {', '.join(shared)}.")
+            displayed_shared = shared[:5]
+            suffix = "" if len(shared) <= 5 else f" and {len(shared) - 5} more"
+            notes.append(f"Location guardrail: shared location signal(s) {', '.join(displayed_shared)}{suffix}.")
             score += 0.15
         elif len(cluster.articles) == 1:
             notes.append(f"Location guardrail: location signal found: {', '.join(locations)}.")

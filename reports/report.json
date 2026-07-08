@@ -1,194 +1,167 @@
 [
   {
-    "cluster_id": 2,
-    "score": 2.293,
-    "avg_similarity": 0.2958,
-    "avg_best_similarity": 0.3115,
-    "similarity_coverage": 1.0,
-    "guardrail_score": 1.0,
-    "guardrail_notes": [
-      "Date guardrail: shared primary date signal 2026-07-08.",
-      "Location guardrail: shared location signal(s) Lyon."
-    ],
-    "sources": [
-      "Le Monde",
-      "Brut",
-      "ARTE"
-    ],
-    "articles": [
-      {
-        "article_id": "a1318acb13",
-        "source": "Le Monde",
-        "title": "Fire at chemical factory injures fifteen people",
-        "url": "",
-        "date": "2026-07-08",
-        "locations": [
-          "Lyon"
-        ]
-      },
-      {
-        "article_id": "334b4cd40f",
-        "source": "Brut",
-        "title": "Huge smoke cloud after factory fire near Lyon",
-        "url": "",
-        "date": "2026-07-08",
-        "locations": [
-          "Lyon"
-        ]
-      },
-      {
-        "article_id": "dece119b0c",
-        "source": "ARTE",
-        "title": "Chemical plant fire near Lyon prompts evacuations",
-        "url": "",
-        "date": "2026-07-08",
-        "locations": [
-          "Lyon"
-        ]
-      }
-    ],
-    "analysis": {
-      "cluster_id": 2,
-      "headline": "Fire at chemical factory injures fifteen people",
-      "coherence_rating": 0.2958,
-      "most_supported_version": "Dry run: this cluster is reported by Le Monde, Brut, ARTE with weighted support 2.51.",
-      "compiled_body": "Fire at chemical factory injures fifteen people: (71%) 15 injured | (29%) 2 dead and 13 injured. A fire broke out on Wednesday morning at a chemical factory near Lyon, forcing emergency services to evacuate nearby streets. According to local authorities, fifteen people were injured, most of them lightly, after inhaling smoke. The prefecture said the fire was under control by midday and that air-quality checks were continuing around the site. Residents near an industrial area outside Lyon were briefly evacuated after a fire at a chemical plant. Emergency services said smoke spread over several blocks before the blaze was contained. This dry-run recap is based on 3 local .txt file(s), reported by Le Monde, Brut, ARTE, with weighted support 2.51 and local similarity 0.30.",
-      "volatile_elements": [
-        {
-          "element": "casualty count",
-          "option_1": "(71%) 15 injured",
-          "option_2": "(29%) 2 dead and 13 injured",
-          "reason": "Different casualty claims appear in Le Monde, ARTE and Brut."
-        }
-      ],
-      "source_notes": [
-        "Le Monde: Fire at chemical factory injures fifteen people",
-        "Brut: Huge smoke cloud after factory fire near Lyon",
-        "ARTE: Chemical plant fire near Lyon prompts evacuations"
-      ]
-    },
-    "confidence": {
-      "score": 81.0,
-      "label": "High",
-      "recommendation": "The recap is well supported by this local corpus. Still verify any volatile details before publishing.",
-      "factors": {
-        "support": 0.836,
-        "source_diversity": 1.0,
-        "article_count": 0.75,
-        "local_coherence": 0.793,
-        "date_location_guardrails": 1.0,
-        "volatile_elements": 1
-      }
-    }
-  },
-  {
     "cluster_id": 1,
-    "score": 1.902,
-    "avg_similarity": 0.2683,
-    "avg_best_similarity": 0.3014,
-    "similarity_coverage": 1.0,
-    "guardrail_score": 0.8,
+    "avg_similarity": 0.2427,
+    "avg_best_similarity": 0.3792,
+    "similarity_coverage": 0.75,
+    "guardrail_score": 0.9,
     "guardrail_notes": [
-      "Date guardrail: shared primary date signal 2026-07-07.",
-      "Location guardrail: location data is limited to one source or not corroborated; do not treat the place as fully confirmed."
-    ],
-    "sources": [
-      "Independent / Unknown",
-      "France24",
-      "CNews"
-    ],
-    "articles": [
-      {
-        "article_id": "658a5e3e96",
-        "source": "Independent / Unknown",
-        "title": "Sea surface temperatures keep rising, partly due to the appearance of a new El Niño",
-        "url": "https://www.jeuxvideo.com/news/2092472/la-temperature-de-la-mer-continue-d-augmenter-et-les-experts-sont-formels-ceci-est-du-en-partie-a-l-apparition-d-un-nouveau-phenomene-el-nino.htm",
-        "date": "2026-07-07",
-        "locations": []
-      },
-      {
-        "article_id": "bdda29a222",
-        "source": "France24",
-        "title": "This year's El Niño likely to become a record-breaker, top expert says",
-        "url": "https://www.france24.com/en/live-news/20260707-this-year-s-el-nino-likely-to-become-record-breaker-top-expert",
-        "date": "2026-07-07",
-        "locations": [
-          "Asia"
-        ]
-      },
-      {
-        "article_id": "d59a2b77ef",
-        "source": "CNews",
-        "title": "El Niño forecast models point toward an \"extreme\" event",
-        "url": "https://www.cnews.fr/monde/2026-07-07/el-nino-les-modeles-de-prevision-laissent-entrevoir-un-evenement-extreme-1887581",
-        "date": "2026-07-07",
-        "locations": []
-      }
-    ],
-    "analysis": {
-      "cluster_id": 1,
-      "headline": "Sea surface temperatures keep rising, partly due to the appearance of a new El Niño",
-      "coherence_rating": 0.2683,
-      "most_supported_version": "Dry run: this cluster is reported by Independent / Unknown, France24, CNews with weighted support 1.85.",
-      "compiled_body": "This year's El Niño likely to become a record-breaker, top expert says. France24 carries an AFP report saying the current El Niño is likely to become record-breaking in its overall strength. The article cites Tim Stockdale, an El Niño specialist at the European Centre for Medium-Range Weather Forecasts, who says forecast models are unusually strong and consistent in pointing toward an extreme event. The article explains that El Niño warms the central and eastern equatorial Pacific, changing global wind, pressure and rainfall patterns. CNews reports that forecast models are pointing toward a potentially extreme El Niño episode in 2026. The article presents El Niño as a climate phenomenon capable of disrupting weather patterns far beyond the tropical Pacific, with a stronger event increasing the likelihood of heat waves, droughts, heavy rain, floods and other extreme weather events. This dry-run recap is based on 3 local .txt file(s), reported by Independent / Unknown, France24, CNews, with weighted support 1.85 and local similarity 0.27.",
-      "volatile_elements": [],
-      "source_notes": [
-        "Independent / Unknown: Sea surface temperatures keep rising, partly due to the appearance of a new El Niño",
-        "France24: This year's El Niño likely to become a record-breaker, top expert says",
-        "CNews: El Niño forecast models point toward an \"extreme\" event"
-      ]
-    },
-    "confidence": {
-      "score": 78.4,
-      "label": "High",
-      "recommendation": "The recap is well supported by this local corpus. Still verify any volatile details before publishing.",
-      "factors": {
-        "support": 0.617,
-        "source_diversity": 1.0,
-        "article_count": 0.75,
-        "local_coherence": 0.79,
-        "date_location_guardrails": 0.8,
-        "volatile_elements": 0
-      }
-    }
-  },
-  {
-    "cluster_id": 3,
-    "score": 0.563,
-    "avg_similarity": 1.0,
-    "avg_best_similarity": 0.0,
-    "similarity_coverage": 0.0,
-    "guardrail_score": 0.8,
-    "guardrail_notes": [
-      "Date guardrail: shared primary date signal 2026-07-08.",
-      "Location guardrail: no usable location signal found."
+      "Date guardrail: primary date signals are close together over 1 day(s).",
+      "Location guardrail: shared location signal(s) Bangkok, Mandalay, China, Myanmar."
     ],
     "sources": [
       "Independent / Unknown"
     ],
     "articles": [
       {
-        "article_id": "cc39bc6d5d",
+        "article_id": "e36c3202c9",
         "source": "Independent / Unknown",
-        "title": "Government presents new housing bill",
-        "url": "",
-        "date": "2026-07-08",
-        "locations": []
+        "title": "Myanmar earthquake: at least 144 killed as rescues also continue in Bangkok",
+        "url": "https://www.theguardian.com/world/2025/mar/28/myanmar-earthquake-thailand-magnitude-thailand-tremors-bangkok",
+        "date": "2025-03-28",
+        "locations": [
+          "Bangkok",
+          "Thai",
+          "Mandalay",
+          "China",
+          "Amarapura",
+          "Myanmar"
+        ],
+        "extractor": "fallback-html-parser",
+        "extractor_fallback_reason": "json-ld: JSON-LD did not contain enough article body text | newspaper3k: newspaper3k is not installed",
+        "body_char_count": 7339
+      },
+      {
+        "article_id": "724ae258b9",
+        "source": "Independent / Unknown",
+        "title": "Earthquake death toll in Myanmar, Thailand surpasses 150",
+        "url": "https://www.aljazeera.com/news/2025/3/28/powerful-earthquake-strikes-myanmar",
+        "date": "",
+        "locations": [
+          "Myanmar",
+          "Myanmar’s",
+          "Naypyidaw",
+          "Chatuchak Market",
+          "Bangkok",
+          "Aung Ban",
+          "Yunnan and Sichuan",
+          "China",
+          "Ruili",
+          "Yunnan"
+        ],
+        "extractor": "fallback-html-parser",
+        "extractor_fallback_reason": "json-ld: JSON-LD did not contain enough article body text | newspaper3k: newspaper3k is not installed",
+        "body_char_count": 6446
+      },
+      {
+        "article_id": "60346d611e",
+        "source": "Independent / Unknown",
+        "title": "Myanmar earthquake: Death toll rises to 1644, rescue efforts underway",
+        "url": "https://apnews.com/article/myanmar-bangkok-earthquake-0a2bd512bca189d034905566605989e9",
+        "date": "2025-03-29",
+        "locations": [],
+        "extractor": "json-ld",
+        "extractor_fallback_reason": "",
+        "body_char_count": 701
+      },
+      {
+        "article_id": "1e0d2906a1",
+        "source": "Independent / Unknown",
+        "title": "Violent earthquakes rock Thailand and Myanmar",
+        "url": "https://apnews.com/article/thailand-earthquake-bangkok-4fce87aced74b1fc0cf260fb5454d353",
+        "date": "2025-03-28",
+        "locations": [
+          "Bangkok",
+          "Mandalay"
+        ],
+        "extractor": "json-ld",
+        "extractor_fallback_reason": "",
+        "body_char_count": 571
       }
     ],
     "analysis": {
-      "cluster_id": 3,
-      "headline": "Government presents new housing bill",
-      "coherence_rating": 1.0,
-      "most_supported_version": "Dry run: this cluster is reported by Independent / Unknown with weighted support 0.47.",
-      "compiled_body": "Government presents new housing bill. The government presented a new housing bill on Wednesday aimed at increasing construction in dense urban areas. Ministers said the plan would simplify permits and encourage local authorities to open more land for residential projects. Opposition lawmakers criticised the proposal, saying it did not provide enough funding for social housing. This dry-run recap is based on 1 local .txt file(s), reported by Independent / Unknown, with weighted support 0.47 and local similarity 1.00.",
-      "volatile_elements": [],
+      "cluster_id": 1,
+      "headline": "Myanmar earthquake: at least 144 killed as rescues also continue in Bangkok",
+      "coherence_rating": 0.2427,
+      "most_supported_version": "Dry run: this cluster is reported by Independent / Unknown with weighted support 1.88.",
+      "compiled_body": "Myanmar earthquake: at least 144 killed as rescues also continue in Bangkok: (25%) 144 dead | (25%) 730 injured. Myanmar earthquake: at least 144 killed as rescues also continue in Bangkok Junta makes rare call for aid as hundreds injured by 7.7-magnitude quake, which also brought down high-rise in Thai capital At least 144 people have died and 732 have been injured after a powerful earthquake struck Myanmar, killing at least nine more in neighbouring Thailand where a high-rise building under construction in Bangkok collapsed. The 7.7-magnitude earthquake hit central Myanmar at 12.50pm local time on Friday at a depth of 10km (6.2 miles). Its epicentre was about 11 miles (17.2km) from Mandalay, Myanmar’s second-largest city. Bangkok skyscraper collapses after Myanmar earthquakes A powerful earthquake has hit Myanmar and neighbouring Thailand, destroying buildings, damaging infrastructure and killing more than 150 people. The head of Myanmar’s military government, Senior General Min Aung Hlaing, said that at least 144 people were killed and 730 others were injured in his country. This dry-run recap is based on 4 article extract(s), reported by Independent / Unknown, with weighted support 1.88 and average pair similarity 0.24.",
+      "volatile_elements": [
+        {
+          "element": "casualty count",
+          "option_1": "(25%) 144 dead",
+          "option_2": "(25%) 730 injured",
+          "reason": "Different casualty claims appear in Independent / Unknown and Independent / Unknown."
+        }
+      ],
       "source_notes": [
-        "Independent / Unknown: Government presents new housing bill"
+        "Independent / Unknown: Myanmar earthquake: at least 144 killed as rescues also continue in Bangkok",
+        "Independent / Unknown: Earthquake death toll in Myanmar, Thailand surpasses 150",
+        "Independent / Unknown: Myanmar earthquake: Death toll rises to 1644, rescue efforts underway",
+        "Independent / Unknown: Violent earthquakes rock Thailand and Myanmar"
       ]
     },
     "confidence": {
-      "score": 6.3,
+      "score": 48.8,
+      "label": "Low",
+      "recommendation": "Treat the recap as a lead only. Search for more independent sources before relying on it.",
+      "factors": {
+        "support": 0.627,
+        "source_diversity": 0.333,
+        "article_count": 1.0,
+        "local_coherence": 0.639,
+        "date_location_guardrails": 0.9,
+        "volatile_elements": 1
+      }
+    }
+  },
+  {
+    "cluster_id": 2,
+    "avg_similarity": 1.0,
+    "avg_best_similarity": 0.0,
+    "similarity_coverage": 0.0,
+    "guardrail_score": 0.9,
+    "guardrail_notes": [
+      "Date guardrail: shared primary date signal 2016-08-24.",
+      "Location guardrail: location signal found: Bangkok, Indian, Bangladesh, Bagan, Myanmar’s Magway, Japan, Myanmar, Pakoku."
+    ],
+    "sources": [
+      "Independent / Unknown"
+    ],
+    "articles": [
+      {
+        "article_id": "8fc8f8c47c",
+        "source": "Independent / Unknown",
+        "title": "Myanmar struck by 6.8-magnitude earthquake",
+        "url": "https://www.theguardian.com/world/2016/aug/24/myanmar-struck-by-6-8-magnitude-earthquake",
+        "date": "2016-08-24",
+        "locations": [
+          "Bangkok",
+          "Indian",
+          "Bangladesh",
+          "Bagan",
+          "Myanmar’s Magway",
+          "Japan",
+          "Myanmar",
+          "Pakoku"
+        ],
+        "extractor": "fallback-html-parser",
+        "extractor_fallback_reason": "json-ld: JSON-LD did not contain enough article body text | newspaper3k: newspaper3k is not installed",
+        "body_char_count": 3239
+      }
+    ],
+    "analysis": {
+      "cluster_id": 2,
+      "headline": "Myanmar struck by 6.8-magnitude earthquake",
+      "coherence_rating": 1.0,
+      "most_supported_version": "Dry run: this cluster is reported by Independent / Unknown with weighted support 0.47.",
+      "compiled_body": "Myanmar struck by 6.8-magnitude earthquake. Myanmar struck by 6.8-magnitude earthquake US Geological Survey reports powerful quake in north-central Myanmar, damaging temples in the ancient city of Bagan A powerful 6.8-magnitude earthquake has hit central Myanmar , the US Geological Survey has said, severely damaging ancient temples at the old city of Bagan and killing one person. The site, which is often compared to Cambodia’s Angkor Wat, holds more than 2,500 temples and pagodas, some of them centuries old. The earthquake was so intense that it was felt in Bangkok, about 620 miles (1,000km) away. This dry-run recap is based on 1 article extract(s), reported by Independent / Unknown, with weighted support 0.47 and average pair similarity 1.00.",
+      "volatile_elements": [],
+      "source_notes": [
+        "Independent / Unknown: Myanmar struck by 6.8-magnitude earthquake"
+      ]
+    },
+    "confidence": {
+      "score": 7.8,
       "label": "Low",
       "recommendation": "Treat the recap as a lead only. Search for more independent sources before relying on it.",
       "factors": {
@@ -196,7 +169,7 @@
         "source_diversity": 0.333,
         "article_count": 0.25,
         "local_coherence": 0.0,
-        "date_location_guardrails": 0.8,
+        "date_location_guardrails": 0.9,
         "volatile_elements": 0
       }
     }

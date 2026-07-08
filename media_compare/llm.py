@@ -63,6 +63,7 @@ STORY_ANALYSIS_SCHEMA: dict[str, Any] = {
 
 
 _SENTENCE_RE = re.compile(r"(?<=[.!?])\s+")
+_POLLUTION_SENTENCE_RE = re.compile(r"\b(SECTIONS|TOP STORIES|ADVERTISEMENT|RELATED STORIES|NEWSLETTER|SUBSCRIBE|SIGN IN|LOG IN)\b", re.I)
 _NUMBER_WORDS = {
     "zero": 0,
     "one": 1,
@@ -132,10 +133,10 @@ def _make_prompt(cluster: StoryCluster) -> str:
     payload = cluster.to_prompt_payload()
     volatile_hints = _volatile_claim_hints(cluster)
     return f"""
-Compare these articles as reports about one possible news story.
+Compare these article extracts as reports about one possible news story.
 
 Rules:
-- Do not invent facts that are not in the supplied texts.
+- Do not invent facts that are not in the supplied article extracts.
 - Separate stable facts from volatile/disputed facts.
 - Never erase a conflict by choosing only the smoother or majority version.
 - Give more importance to sources with higher trust, but still note when several lower-weight sources agree.
@@ -148,7 +149,7 @@ Rules:
 - In compiled_body, briefly mention that a conflict exists, but do not rely on the paragraph as the only place where the conflict appears.
 - If locally detected volatile claim candidates are listed, include them in volatile_elements and mention the uncertainty in compiled_body.
 - Percentages are support estimates based on source trust/reach weights and corroboration inside this cluster. They are not mathematical proof.
-- Do not invent missing dates or locations. If they are absent, say the timing or location is not confirmed by the supplied files.
+- Do not invent missing dates or locations. If they are absent, say the timing or location is not confirmed by the supplied article extracts.
 - Do not attach percentages to source names or stable claims. Use percentages only inside volatile_elements options.
 - Example: "Fire at a chemical factory near Lyon: (60%) 15 injured | (12%) 2 dead and 13 injured, while a large smoke cloud spread around the site and authorities evacuated nearby streets."
 - If a volatile element has more than two versions, put the two most important or most representative versions in option_1 and option_2.
@@ -345,8 +346,17 @@ def _support_percentages(cluster: StoryCluster) -> dict[str, float]:
 
 
 def _first_sentences(text: str, limit: int = 2) -> list[str]:
-    sentences = [s.strip() for s in _SENTENCE_RE.split(text.strip()) if s.strip()]
-    return sentences[:limit]
+    sentences: list[str] = []
+    for sentence in _SENTENCE_RE.split(text.strip()):
+        clean = sentence.strip()
+        if not clean:
+            continue
+        if _POLLUTION_SENTENCE_RE.search(clean):
+            break
+        sentences.append(clean)
+        if len(sentences) >= limit:
+            break
+    return sentences
 
 
 def _extract_casualty_claims(cluster: StoryCluster) -> list[tuple[str, float, str]]:
@@ -428,9 +438,9 @@ def _make_dry_run_body(cluster: StoryCluster) -> tuple[str, list[dict[str, str]]
         body += " " + " ".join(detail_sentences)
 
     body += (
-        f" This dry-run recap is based on {len(cluster.articles)} local .txt file(s), "
+        f" This dry-run recap is based on {len(cluster.articles)} article extract(s), "
         f"reported by {sources}, with weighted support {cluster.weighted_support:.2f} "
-        f"and local similarity {cluster.avg_similarity:.2f}."
+        f"and average pair similarity {cluster.avg_similarity:.2f}."
     )
 
     return body, volatile_elements

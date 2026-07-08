@@ -1,5 +1,7 @@
+__pycache__/
+*.pyc
 .env
+reports/
 .idea
 .venv
-__pycache__
 media_compare/__pycache__

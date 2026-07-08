@@ -98,7 +98,7 @@ def load_articles(folder: Path, sources: list[SourceProfile]) -> list[Article]:
         articles.append(
             Article(
                 article_id=digest,
-                path=path,
+                path=str(path),
                 source=source,
                 title=title,
                 body=body,

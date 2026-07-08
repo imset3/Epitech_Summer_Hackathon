@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
 
@@ -33,7 +32,7 @@ class ArticleSignals:
 @dataclass
 class Article:
     article_id: str
-    path: Path
+    path: str
     source: SourceProfile
     title: str
     body: str
@@ -84,7 +83,8 @@ class StoryCluster:
                     "reach": a.source.reach,
                     "support_weight": a.source.support_weight,
                     "title": a.title,
-                    "file": str(a.path),
+                    "document": a.path,
+                    "url": a.metadata.get("url", ""),
                     "dates": a.signals.dates,
                     "years": a.signals.years,
                     "locations": a.signals.locations,

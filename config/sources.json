@@ -2,51 +2,86 @@
   "sources": [
     {
       "name": "Le Monde",
-      "aliases": ["lemonde", "le_monde", "le monde"],
+      "aliases": [
+        "lemonde",
+        "le_monde",
+        "le monde",
+        "lemonde.fr",
+        "www.lemonde.fr"
+      ],
       "trust": 0.92,
-      "reach": 0.90,
+      "reach": 0.9,
       "notes": "Established national newspaper. Strong editorial process."
     },
     {
       "name": "ARTE",
-      "aliases": ["arte"],
+      "aliases": [
+        "arte",
+        "arte.tv",
+        "www.arte.tv"
+      ],
       "trust": 0.88,
       "reach": 0.75,
       "notes": "Public cultural broadcaster. Strong documentary/editorial standards."
     },
     {
       "name": "Brut",
-      "aliases": ["brut"],
+      "aliases": [
+        "brut",
+        "brut.media",
+        "www.brut.media"
+      ],
       "trust": 0.72,
       "reach": 0.78,
       "notes": "Social-first media. Useful for visibility, but often shorter context."
     },
     {
       "name": "AFP",
-      "aliases": ["afp", "agence france presse", "agence-france-presse"],
+      "aliases": [
+        "afp",
+        "agence france presse",
+        "agence-france-presse",
+        "afp.com",
+        "www.afp.com"
+      ],
       "trust": 0.94,
       "reach": 0.85,
       "notes": "Wire agency; often close to primary reporting."
     },
     {
       "name": "France24",
-      "aliases": ["france24", "france_24"],
+      "aliases": [
+        "france24",
+        "france_24",
+        "france24.com",
+        "france24.fr",
+        "www.france24.com"
+      ],
       "trust": 0.85,
-      "reach": 0.60,
+      "reach": 0.6,
       "notes": "Use as a high-confidence source for broad factual framing, especially when carrying AFP copy."
     },
     {
       "name": "CNews",
-      "aliases": ["cnews"],
-      "trust": 0.60,
-      "reach": 0.40,
+      "aliases": [
+        "cnews",
+        "cnews.fr",
+        "www.cnews.fr"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
       "notes": "Useful for detecting what is being said in French media, but assign less weight than primary scientific institutions or international wires."
     },
     {
       "name": "Independent / Unknown",
-      "aliases": ["independent", "unknown", "blog", "local"],
-      "trust": 0.50,
-      "reach": 0.30,
+      "aliases": [
+        "independent",
+        "unknown",
+        "blog",
+        "local"
+      ],
+      "trust": 0.5,
+      "reach": 0.3,
       "notes": "Default when no known source is detected. Adjust per publication."
     }
   ]

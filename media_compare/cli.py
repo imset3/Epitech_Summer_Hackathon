@@ -8,7 +8,8 @@ from pathlib import Path
 from .clustering import cluster_articles
 from .llm import analyze_cluster
 from .loader import load_articles
-from .reporting import cluster_summary_line, write_markdown_report
+from .url_loader import load_articles_from_url_file
+from .reporting import cluster_summary_line, write_json_report, write_markdown_report
 from .sources import load_sources
 
 
@@ -51,9 +52,9 @@ def _print_conflicts(analysis: dict) -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="media-compare",
-        description="Compare local .txt files, cluster same stories, and synthesize source-aware recaps with OpenAI or a local LLM.",
+        description="Compare article URLs or local .txt files, cluster same stories, and synthesize source-aware recaps with OpenAI or a local LLM.",
     )
-    parser.add_argument("folder", type=Path, help="Folder containing .txt articles")
+    parser.add_argument("input", type=Path, help="A .txt file containing one article URL per line, or a folder containing legacy .txt articles")
     parser.add_argument(
         "--sources",
         type=Path,
@@ -96,16 +97,28 @@ def build_parser() -> argparse.ArgumentParser:
         help="Do not call an LLM; only show clusters and produce local placeholder recap text",
     )
     parser.add_argument(
+        "--fetch-timeout",
+        type=int,
+        default=20,
+        help="Seconds to wait when fetching each URL from a URL list file. Default: 20",
+    )
+    parser.add_argument(
+        "--extractor",
+        choices=["auto", "newspaper", "fallback"],
+        default="auto",
+        help="URL article extractor. auto tries newspaper3k first, then the fallback parser. Default: auto",
+    )
+    parser.add_argument(
         "--out",
         type=Path,
         default=Path("reports/report.md"),
         help="Markdown output path. Default: reports/report.md",
     )
     parser.add_argument(
-        "--out-json",
+        "--json-out",
         type=Path,
-        default=None,
-        help="JSON output path for structured cluster statistics and LLM recaps.",
+        default=Path("reports/report.json"),
+        help="JSON output path for website/front-end use. Default: reports/report.json",
     )
     return parser
 
@@ -119,14 +132,35 @@ def main(argv: list[str] | None = None) -> int:
 
     args = build_parser().parse_args(argv)
 
-    if not args.folder.exists() or not args.folder.is_dir():
-        print(f"Input folder not found: {args.folder}", file=sys.stderr)
+    if not args.input.exists():
+        print(f"Input not found: {args.input}", file=sys.stderr)
         return 2
 
     sources = load_sources(args.sources)
-    articles = load_articles(args.folder, sources)
+    fetch_errors: list[str] = []
+    input_kind = "folder"
+    if args.input.is_dir():
+        articles = load_articles(args.input, sources)
+    else:
+        input_kind = "url-list"
+        articles, fetch_errors = load_articles_from_url_file(
+            args.input,
+            sources,
+            timeout=args.fetch_timeout,
+            extractor=args.extractor,
+        )
+
+    if fetch_errors:
+        print("URL fetch/extraction warnings:", file=sys.stderr)
+        for error in fetch_errors:
+            print(f"- {error}", file=sys.stderr)
+        print(file=sys.stderr)
+
     if not articles:
-        print("No .txt files found.", file=sys.stderr)
+        if input_kind == "url-list":
+            print("No readable article URLs were found in the input file.", file=sys.stderr)
+        else:
+            print("No .txt files found.", file=sys.stderr)
         return 1
 
     clusters = cluster_articles(articles, threshold=args.threshold)
@@ -134,7 +168,11 @@ def main(argv: list[str] | None = None) -> int:
     provider = "dry-run" if args.dry_run else (args.provider or os.environ.get("LLM_PROVIDER", "openai"))
     selected_model = _selected_model(provider, args.model)
 
-    print(f"Loaded {len(articles)} .txt article(s). Detected {len(clusters)} story cluster(s).")
+    if input_kind == "url-list":
+        print(f"Loaded {len(articles)} article URL(s). Detected {len(clusters)} story cluster(s).")
+        print(f"URL extractor: {args.extractor}")
+    else:
+        print(f"Loaded {len(articles)} .txt article(s). Detected {len(clusters)} story cluster(s).")
     print(f"LLM provider: {provider}")
     print(f"LLM model: {selected_model}")
     if provider == "local":
@@ -163,47 +201,17 @@ def main(argv: list[str] | None = None) -> int:
     if output_path.suffix.lower() != ".md":
         output_path = output_path.with_suffix(".md")
 
+    json_output_path = args.json_out
+    if json_output_path.suffix.lower() != ".json":
+        json_output_path = json_output_path.with_suffix(".json")
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    json_output_path.parent.mkdir(parents=True, exist_ok=True)
     write_markdown_report(output_path, clusters, analyses)
+    write_json_report(json_output_path, clusters, analyses)
+
     print(f"Wrote {output_path}")
-
-    if args.out_json:
-        import json
-        from .confidence import recap_confidence
-
-        json_output_path = args.out_json
-        json_output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        output_data = []
-        for cluster, analysis in zip(clusters_to_analyze, analyses):
-            conf = recap_confidence(cluster, analysis)
-            output_data.append({
-                "cluster_id": cluster.cluster_id,
-                "score": cluster.score,
-                "avg_similarity": cluster.avg_similarity,
-                "avg_best_similarity": cluster.avg_best_similarity,
-                "similarity_coverage": cluster.similarity_coverage,
-                "guardrail_score": cluster.guardrail_score,
-                "guardrail_notes": cluster.guardrail_notes,
-                "sources": cluster.distinct_sources,
-                "articles": [
-                    {
-                        "article_id": a.article_id,
-                        "source": a.source.name,
-                        "title": a.title,
-                        "url": a.metadata.get("url", ""),
-                        "date": a.signals.dates[0] if a.signals.dates else None,
-                        "locations": a.signals.locations
-                    } for a in cluster.articles
-                ],
-                "analysis": analysis,
-                "confidence": conf
-            })
-
-        with open(json_output_path, "w", encoding="utf-8") as f:
-            json.dump(output_data, f, indent=2, ensure_ascii=False)
-        print(f"Wrote structured JSON to {json_output_path}")
-
+    print(f"Wrote {json_output_path}")
     return 0
 
 
