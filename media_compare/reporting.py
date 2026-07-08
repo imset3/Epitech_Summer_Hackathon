@@ -55,6 +55,7 @@ def _article_to_json(article: Any) -> dict[str, Any]:
         "source": article.source.name,
         "title": article.title,
         "url": article.metadata.get("url", ""),
+        "image_url": article.image_url,
         "date": _article_date(article),
         "locations": article.signals.locations,
         "extractor": article.metadata.get("extractor", ""),

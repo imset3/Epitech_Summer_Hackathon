@@ -15,6 +15,7 @@ from typing import Any
 from .guardrails import extract_article_signals
 from .models import Article, SourceProfile
 from .sources import detect_source
+from .translator import translate_to_english
 
 try:  # Optional dependency. Auto mode falls back to the internal parser if missing.
     from newspaper import Article as NewspaperArticle  # type: ignore
@@ -168,6 +169,28 @@ def _clean_text(value: str) -> str:
     value = html.unescape(value)
     value = _WHITESPACE_RE.sub(" ", value).strip()
     return value
+
+
+def _absolute_url(base_url: str, value: str) -> str:
+    value = _clean_text(value)
+    if not value:
+        return ""
+    return urllib.parse.urljoin(base_url, value)
+
+
+def _first_image_url(base_url: str, *values: Any) -> str:
+    for value in values:
+        if isinstance(value, str):
+            candidate = value
+        elif isinstance(value, dict):
+            candidate = value.get("url") or value.get("contentUrl") or value.get("thumbnailUrl") or ""
+        elif isinstance(value, list):
+            candidate = _first_image_url(base_url, *value)
+        else:
+            candidate = ""
+        if candidate:
+            return _absolute_url(base_url, str(candidate))
+    return ""
 
 
 
@@ -354,6 +377,19 @@ def _metadata_from_parser(parser: _ArticleTextParser, url: str) -> dict[str, str
     if canonical:
         metadata["canonical_url"] = _clean_text(canonical)
 
+    image_url = _first_image_url(
+        url,
+        meta.get("og:image"),
+        meta.get("og:image:url"),
+        meta.get("og:image:secure_url"),
+        meta.get("twitter:image"),
+        meta.get("twitter:image:src"),
+        meta.get("image"),
+        meta.get("thumbnail"),
+    )
+    if image_url:
+        metadata["image_url"] = image_url
+
     date = (
         meta.get("article:published_time")
         or meta.get("article:modified_time")
@@ -430,6 +466,15 @@ def _metadata_from_newspaper(article: Any, base_metadata: dict[str, str]) -> dic
     canonical_link = _clean_text(str(getattr(article, "canonical_link", "") or ""))
     if canonical_link:
         metadata["canonical_url"] = canonical_link
+
+    top_image = _first_image_url(
+        base_metadata.get("url", ""),
+        str(getattr(article, "top_image", "") or ""),
+        str(getattr(article, "meta_img", "") or ""),
+        metadata.get("image_url", ""),
+    )
+    if top_image:
+        metadata["image_url"] = top_image
 
     return metadata
 
@@ -542,6 +587,15 @@ def _extract_with_json_ld(url: str, raw_html: str, parser_metadata: dict[str, st
     if publisher_name:
         metadata["source"] = publisher_name
 
+    image_url = _first_image_url(
+        url,
+        best_item.get("image"),
+        best_item.get("thumbnailUrl"),
+        parser_metadata.get("image_url", ""),
+    )
+    if image_url:
+        metadata["image_url"] = image_url
+
     return ExtractedArticle(title=title[:180], body=best_body, metadata=metadata, extractor="json-ld")
 
 
@@ -652,6 +706,8 @@ def fetch_article_from_url(
         source=source,
         title=extracted.title,
         body=extracted.body,
+        body_en=translate_to_english(extracted.body),
+        image_url=extracted.metadata.get("image_url", ""),
         metadata=extracted.metadata,
         signals=signals,
     )

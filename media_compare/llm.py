@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import json
 import os
+import random
 import re
+import sys
+import time
 import urllib.error
 import urllib.request
 from typing import Any
@@ -322,6 +325,135 @@ def analyze_cluster_with_local_llm(
     return _ensure_analysis_shape(_parse_json_response(content), cluster)
 
 
+def analyze_cluster_with_gemini(
+    cluster: StoryCluster,
+    model: str | None = None,
+) -> dict[str, Any]:
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise RuntimeError("GEMINI_API_KEY environment variable not set.")
+
+    selected_model = model or os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{selected_model}:generateContent?key={api_key}"
+
+    system_instructions = _system_prompt()
+    user_prompt = _make_prompt(cluster)
+    full_text_prompt = (
+        f"System Instructions:\n{system_instructions}\n\n"
+        f"Analyze the following story cluster and return JSON matching the schema.\n\n"
+        f"User Request:\n{user_prompt}"
+    )
+
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": full_text_prompt}
+                ]
+            }
+        ],
+        "generationConfig": {
+            "responseMimeType": "application/json",
+            "temperature": 0.2
+        }
+    }
+
+    request = urllib.request.Request(
+        endpoint,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST"
+    )
+
+    # Retry only Gemini rate limits. Other failures should be visible to the UI/CLI.
+    response_payload: dict[str, Any] | None = None
+    max_retries = 10
+    for attempt in range(max_retries):
+        try:
+            with urllib.request.urlopen(request, timeout=120) as response:
+                response_payload = json.loads(response.read().decode("utf-8"))
+                break
+        except urllib.error.HTTPError as exc:
+            error_body = exc.read().decode("utf-8", errors="replace")
+            if exc.code == 429:
+                if attempt < max_retries - 1:
+                    sleep_time = random.uniform(5.0, 10.0)
+                    print(f"Warning: Gemini API Rate Limit (429) hit. Retrying in {sleep_time:.2f} seconds...", file=sys.stderr)
+                    time.sleep(sleep_time)
+                    continue
+
+                fallback_headline = f"Reported Event: {cluster.articles[0].title}"
+                fallback_compiled = (
+                    f"This story is reported by {cluster.source_count} source(s) including {', '.join(cluster.distinct_sources)}. "
+                    f"Gemini rate limits prevented full semantic synthesis, so this fallback only summarizes cluster metadata. "
+                    f"Primary titles include: {'; '.join([a.title for a in cluster.articles[:3]])}."
+                )
+                return _ensure_analysis_shape({
+                    "cluster_id": cluster.cluster_id,
+                    "headline": fallback_headline,
+                    "coherence_rating": cluster.avg_similarity,
+                    "most_supported_version": fallback_headline,
+                    "compiled_body": fallback_compiled,
+                    "volatile_elements": [],
+                    "source_notes": ["Synthesis fallback applied because Gemini returned HTTP 429 after retries."],
+                }, cluster)
+
+            raise RuntimeError(f"Gemini API HTTP {exc.code}: {error_body[:500]}") from exc
+        except urllib.error.URLError as exc:
+            raise RuntimeError(f"Could not reach Gemini API: {exc.reason}") from exc
+        except json.JSONDecodeError as exc:
+            raise RuntimeError("Gemini API returned a non-JSON response.") from exc
+
+    if response_payload is None:
+        raise RuntimeError("Gemini API did not return a response payload.")
+
+    try:
+        content = response_payload["candidates"][0]["content"]["parts"][0]["text"]
+    except (KeyError, IndexError) as exc:
+        raise RuntimeError(f"Unexpected response structure from Gemini API: {response_payload}") from exc
+
+    try:
+        parsed = _parse_json_response(content)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"Gemini response was not valid analysis JSON: {content[:500]}") from exc
+
+    return _ensure_analysis_shape(parsed, cluster)
+
+
+def analyze_cluster_with_nim(
+    cluster: StoryCluster,
+    model: str | None = None,
+) -> dict[str, Any]:
+    api_key = os.environ.get("NVIDIA_NIM_API_KEY")
+    if not api_key:
+        raise RuntimeError("NVIDIA_NIM_API_KEY environment variable not set.")
+
+    try:
+        from openai import OpenAI
+    except ModuleNotFoundError as exc:
+        raise RuntimeError("The openai package is not installed. Run: pip install -r requirements.txt") from exc
+
+    selected_model = model or os.environ.get("NVIDIA_NIM_MODEL", "meta/llama-3.1-8b-instruct")
+    client = OpenAI(api_key=api_key, base_url="https://integrate.api.nvidia.com/v1")
+
+    # Use NVIDIA NIM completion with JSON object response formatting
+    response = client.chat.completions.create(
+        model=selected_model,
+        messages=[
+            {"role": "system", "content": _system_prompt()},
+            {"role": "user", "content": _make_prompt(cluster)},
+        ],
+        temperature=0.2,
+        response_format={"type": "json_object"}
+    )
+
+    content = response.choices[0].message.content
+    if not content:
+        raise RuntimeError("NVIDIA NIM response did not include content.")
+
+    return _ensure_analysis_shape(_parse_json_response(content), cluster)
+
+
 def analyze_cluster(
     cluster: StoryCluster,
     provider: str = "openai",
@@ -334,6 +466,10 @@ def analyze_cluster(
         return analyze_cluster_with_local_llm(cluster, model=model, base_url=local_base_url)
     if provider == "openai":
         return analyze_cluster_with_api(cluster, model=model)
+    if provider == "gemini":
+        return analyze_cluster_with_gemini(cluster, model=model)
+    if provider == "nim":
+        return analyze_cluster_with_nim(cluster, model=model)
     raise ValueError(f"Unknown LLM provider: {provider}")
 
 

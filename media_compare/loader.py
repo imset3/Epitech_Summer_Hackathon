@@ -6,6 +6,7 @@ from pathlib import Path
 from .guardrails import extract_article_signals
 from .models import Article, SourceProfile
 from .sources import detect_source
+from .translator import translate_to_english
 
 SUPPORTED_EXTENSIONS = {".txt"}
 SUPPORTED_METADATA_KEYS = {
@@ -102,6 +103,7 @@ def load_articles(folder: Path, sources: list[SourceProfile]) -> list[Article]:
                 source=source,
                 title=title,
                 body=body,
+                body_en=translate_to_english(body),
                 metadata=metadata,
                 signals=signals,
             )

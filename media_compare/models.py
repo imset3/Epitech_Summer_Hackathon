@@ -10,6 +10,7 @@ class SourceProfile:
     aliases: list[str]
     trust: float
     reach: float
+    bias: str = "untracked"
     notes: str = ""
 
     @property
@@ -36,6 +37,8 @@ class Article:
     source: SourceProfile
     title: str
     body: str
+    body_en: str = ""
+    image_url: str = ""
     metadata: dict[str, str] = field(default_factory=dict)
     signals: ArticleSignals = field(default_factory=ArticleSignals)
 
@@ -71,11 +74,49 @@ class StoryCluster:
     def source_count(self) -> int:
         return len(self.distinct_sources)
 
+    @property
+    def trust_distribution(self) -> dict[str, int]:
+        """Calculates percentage of High, Medium, and Low source trust in the cluster."""
+        counts = {"high": 0, "medium": 0, "low": 0}
+        for article in self.articles:
+            trust = article.source.trust
+            if trust >= 0.85:
+                counts["high"] += 1
+            elif trust >= 0.70:
+                counts["medium"] += 1
+            else:
+                counts["low"] += 1
+
+        total = len(self.articles)
+        if total == 0:
+            return {"high": 0, "medium": 0, "low": 0}
+
+        return {
+            "high": round((counts["high"] / total) * 100),
+            "medium": round((counts["medium"] / total) * 100),
+            "low": round((counts["low"] / total) * 100)
+        }
+
+    @property
+    def trust_status(self) -> str:
+        """Categorizes the safety/reliability status of the story cluster."""
+        dist = self.trust_distribution
+        if dist["high"] >= 50:
+            return "Highly Verified"
+        elif dist["high"] > 0:
+            return "Partially Verified"
+        elif dist["medium"] >= 50:
+            return "Mixed Reliability"
+        else:
+            return "Unverified / Speculative"
+
     def to_prompt_payload(self, max_chars_per_article: int = 3500) -> dict[str, Any]:
         return {
             "cluster_id": self.cluster_id,
             "weighted_support": self.weighted_support,
             "distinct_sources": self.distinct_sources,
+            "trust_distribution": self.trust_distribution,
+            "trust_status": self.trust_status,
             "articles": [
                 {
                     "source": a.source.name,

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en" class="sl-theme-dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Story Bias Compare & Blindspot Detector</title>
+    <!-- Google Fonts (Outfit, Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome (Icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Shoelace CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.0/cdn/themes/dark.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.0/cdn/shoelace-autoloader.js"></script>
+
+    <link rel="stylesheet" href="/index.css?v=2">
+</head>
+<body>
+    <div id="app-root" class="app-container initial-state">
+        <!-- Sidebar or Header -->
+        <header class="main-header">
+            <div class="logo" id="logo-home" style="cursor: pointer;">
+                <i class="fa-solid fa-scale-balanced logo-icon"></i>
+                <span class="logo-text">StoryCompare</span>
+            </div>
+            <!-- Header Search Bar (Only visible when showing results) -->
+            <div class="search-wrapper header-search">
+                <form id="search-form-header" class="search-form">
+                    <div class="input-group">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="search-input-header" placeholder="Search another event..." required autocomplete="off">
+                        <button type="submit" class="search-btn">Search</button>
+                    </div>
+                </form>
+            </div>
+            <div class="header-status">
+                <button id="settings-btn" class="settings-btn" title="AI Settings">
+                    <i class="fa-solid fa-sliders"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="workspace">
+            
+            <!-- ChatGPT-style Hero Search Page (Visible initially) -->
+            <div id="hero-section" class="hero-container">
+                <div class="hero-content">
+                    <h1 class="hero-title">Search & analyze any news story.</h1>
+                    
+                    <!-- Timestamp row above search bar -->
+                    <div class="trending-title-row" style="justify-content:center; margin-bottom:0.6rem;">
+                        <span class="trending-title"><i class="fa-solid fa-arrow-trend-up"></i> Trending Keywords</span>
+                        <span id="trending-timestamp" class="trending-time-badge"></span>
+                    </div>
+
+                    <form id="search-form-hero" class="hero-search-form">
+                        <div class="hero-input-group">
+                            <i class="fa-solid fa-scale-unbalanced-left icon-left"></i>
+                            <input type="text" id="search-input-hero" placeholder="What would you like to search today?" required autocomplete="off">
+                            <!-- Model selector pill inside search bar -->
+                            <div class="model-selector-wrap" id="model-selector-wrap">
+                                <button type="button" class="model-pill" id="model-pill-btn">
+                                    <i class="fa-solid fa-microchip"></i>
+                                    <span id="model-pill-label">Dry-Run</span>
+                                    <i class="fa-solid fa-chevron-down" style="font-size:0.65rem; opacity:0.6"></i>
+                                </button>
+                                <div class="model-dropdown" id="model-dropdown">
+                                    <div class="model-option" data-provider="dry-run" data-model="">
+                                        <span class="model-icon">🔬</span>
+                                        <div>
+                                            <div class="model-name">Dry-Run</div>
+                                            <div class="model-desc">No API key needed</div>
+                                        </div>
+                                    </div>
+                                    <div class="model-option" data-provider="openai" data-model="gpt-4o-mini">
+                                        <span class="model-icon">🤖</span>
+                                        <div>
+                                            <div class="model-name">GPT-4o mini</div>
+                                            <div class="model-desc">OpenAI · Fast & cheap</div>
+                                        </div>
+                                    </div>
+                                    <div class="model-option" data-provider="openai" data-model="gpt-4o">
+                                        <span class="model-icon">✨</span>
+                                        <div>
+                                            <div class="model-name">GPT-4o</div>
+                                            <div class="model-desc">OpenAI · Most capable</div>
+                                        </div>
+                                    </div>
+                                    <div class="model-option" data-provider="gemini" data-model="gemini-2.5-flash">
+                                        <span class="model-icon">💎</span>
+                                        <div>
+                                            <div class="model-name">Gemini 2.5 Flash</div>
+                                            <div class="model-desc">Google · Fast</div>
+                                        </div>
+                                    </div>
+                                    <div class="model-option" data-provider="gemini" data-model="gemini-2.5-pro">
+                                        <span class="model-icon">🌟</span>
+                                        <div>
+                                            <div class="model-name">Gemini 2.5 Pro</div>
+                                            <div class="model-desc">Google · Most capable</div>
+                                        </div>
+                                    </div>
+                                    <div class="model-option" data-provider="local" data-model="gemma4:e4b">
+                                        <span class="model-icon">🖥️</span>
+                                        <div>
+                                            <div class="model-name">Gemma 4 E4B</div>
+                                            <div class="model-desc">Local Ollama · gemma4:e4b</div>
+                                        </div>
+                                    </div>
+                                    <div class="model-option" data-provider="nim" data-model="meta/llama-3.1-8b-instruct">
+                                        <span class="model-icon">⚡</span>
+                                        <div>
+                                            <div class="model-name">NVIDIA NIM</div>
+                                            <div class="model-desc">Llama 3.1 · GPU Cloud</div>
+                                        </div>
+                                    </div>
+                                    <div class="model-option" data-provider="nim" data-model="nvidia/llama-3.1-nemotron-ultra-253b-v1">
+                                        <span class="model-icon">🚀</span>
+                                        <div>
+                                            <div class="model-name">Nemotron Ultra</div>
+                                            <div class="model-desc">NVIDIA · Most capable</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="hero-submit-btn">
+                                <i class="fa-solid fa-arrow-up"></i>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Trending chips directly below search bar -->
+                    <div class="trending-keywords-section">
+                        <div id="hero-quick-chips" class="hero-quick-chips">
+                            <!-- Dynamic keywords will render here -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Filter Tabs (Only shown with results) -->
+            <div id="results-meta-tabs" class="tab-container hidden">
+                <button class="tab-link active" data-tab="all">
+                    <i class="fa-solid fa-list-ul"></i> All Stories
+                </button>
+                <button class="tab-link" data-tab="high-trust">
+                    <i class="fa-solid fa-square-check text-left-color"></i> Highly Verified
+                </button>
+                <button class="tab-link" data-tab="low-trust">
+                    <i class="fa-solid fa-circle-question text-right-color"></i> Unverified / Speculative
+                </button>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loading" class="loading-state hidden">
+                <sl-spinner style="font-size: 3rem; --track-width: 4px; --indicator-color: var(--color-right);"></sl-spinner>
+                <p class="loading-msg" style="margin-top: 1.5rem;">Fetching matching news and running AI analysis engine...</p>
+            </div>
+
+            <!-- Error State / No results -->
+            <div id="error-state" class="empty-state hidden">
+                <i class="fa-solid fa-circle-exclamation empty-icon"></i>
+                <h2>No matching stories found</h2>
+                <p>Try searching for another topic or simplify your keywords.</p>
+            </div>
+
+            <!-- Stories Grid View (Ground News columns modified to Trust levels) -->
+            <div id="stories-container" class="stories-grid hidden">
+                <!-- Column High Trust -->
+                <div class="grid-column" id="left-col-container">
+                    <div class="column-header">
+                        <h3>Highly Verified</h3>
+                        <p>Stories verified by high-trust global news networks.</p>
+                    </div>
+                    <div class="column-cards" id="left-column-cards">
+                        <!-- Dynamic Cards -->
+                    </div>
+                </div>
+
+                <!-- Column Medium Trust -->
+                <div class="grid-column" id="center-col-container">
+                    <div class="column-header">
+                        <h3>Partially Verified</h3>
+                        <p>Stories with mixed credibility or fewer verified sources.</p>
+                    </div>
+                    <div class="column-cards" id="center-column-cards">
+                        <!-- Dynamic Cards -->
+                    </div>
+                </div>
+
+                <!-- Column Low Trust -->
+                <div class="grid-column" id="right-col-container">
+                    <div class="column-header">
+                        <h3>Unverified / Speculative</h3>
+                        <p>Stories mostly reported by low-trust or unverified blogs.</p>
+                    </div>
+                    <div class="column-cards" id="right-column-cards">
+                        <!-- Dynamic Cards -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Details Modal (Screenshot 2 Style using Shoelace sl-dialog) -->
+    <sl-dialog id="details-modal" class="dialog-width" style="--width: 1100px;">
+        <div slot="label" class="modal-header-section" style="border-bottom:none; padding-bottom:0; margin-bottom:0;">
+            <div class="modal-meta">
+                <span id="modal-confidence" class="badge-confidence">Confidence: High</span>
+                <span id="modal-sources-count" class="badge-sources">12 sources</span>
+            </div>
+            <h1 id="modal-title" style="font-size: 1.5rem; margin-top: 0.5rem; line-height: 1.3;">Australian woman arrested in US...</h1>
+            <div id="modal-banner" class="modal-banner-image hidden"></div>
+        </div>
+
+        <!-- Modal Grid -->
+        <div class="modal-grid-layout">
+            <!-- Left: AI Recap and Analysis -->
+            <div class="modal-left-pane">
+                <div class="recap-box">
+                    <h3><i class="fa-solid fa-robot"></i> AI Neutral Recap</h3>
+                    <p id="modal-recap-body" class="recap-body">
+                        Loading recap...
+                    </p>
+                </div>
+                
+                <div class="volatile-box">
+                    <h3><i class="fa-solid fa-triangle-exclamation"></i> Uncertain / Conflicting Details</h3>
+                    <ul id="modal-volatile-list" class="volatile-list">
+                        <!-- Volatile items -->
+                    </ul>
+                </div>
+
+                <div class="sources-notes-box">
+                    <h3><i class="fa-solid fa-circle-info"></i> Source Notes</h3>
+                    <ul id="modal-notes-list" class="notes-list">
+                        <!-- Notes items -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right: Source Trust Distribution Chart -->
+            <div class="modal-right-pane">
+                <div class="bias-card">
+                    <div class="bias-header">
+                        <h2>Source Trust Distribution <i class="fa-solid fa-arrow-up-right-from-square"></i></h2>
+                        <p id="bias-summary-text">46% of the sources are High Trust</p>
+                    </div>
+
+                    <!-- Horizontal Bias Bar -->
+                    <div class="bias-bar-wrapper">
+                        <div class="bias-bar-segment l-segment" id="bar-left" style="width: 30%;">HIGH 30%</div>
+                        <div class="bias-bar-segment c-segment" id="bar-center" style="width: 46%;">MED 46%</div>
+                        <div class="bias-bar-segment r-segment" id="bar-right" style="width: 24%;">LOW 24%</div>
+                    </div>
+
+                    <!-- Lanes (High, Medium, Low Columns) -->
+                    <div class="bias-lanes">
+                        <!-- High Trust Lane -->
+                        <div class="bias-lane l-lane">
+                            <div class="lane-title">HIGH TRUST</div>
+                            <div class="lane-outlets" id="lane-outlets-left">
+                                <!-- Dynamic outlets -->
+                            </div>
+                        </div>
+                        
+                        <!-- Medium Trust Lane -->
+                        <div class="bias-lane c-lane">
+                            <div class="lane-title">MED TRUST</div>
+                            <div class="lane-outlets" id="lane-outlets-center">
+                                <!-- Dynamic outlets -->
+                            </div>
+                        </div>
+
+                        <!-- Low Trust Lane -->
+                        <div class="bias-lane r-lane">
+                            <div class="lane-title">LOW TRUST</div>
+                            <div class="lane-outlets" id="lane-outlets-right">
+                                <!-- Dynamic outlets -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Untracked Section -->
+                    <div class="untracked-section">
+                        <h4>Untracked / Unknown</h4>
+                        <div class="untracked-outlets" id="untracked-outlets-list">
+                            <!-- Dynamic untracked -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </sl-dialog>
+
+    <!-- ── Settings Modal ──────────────────────────────────────────── -->
+    <sl-dialog id="settings-modal" label="AI Model Settings" class="settings-dialog">
+        <div class="settings-body">
+            <p class="settings-desc">
+                Choose your AI provider and enter your API key. Saved settings are written to this local project's .env file.
+            </p>
+
+            <div class="settings-section">
+                <label class="settings-label">Provider</label>
+                <div class="provider-grid" id="provider-grid">
+                    <button class="provider-card active" data-provider="dry-run">
+                        <span class="provider-icon">🔬</span>
+                        <span class="provider-name">Dry-Run</span>
+                        <span class="provider-sub">No key needed</span>
+                    </button>
+                    <button class="provider-card" data-provider="openai">
+                        <span class="provider-icon">🤖</span>
+                        <span class="provider-name">OpenAI</span>
+                        <span class="provider-sub">GPT-4o / mini</span>
+                    </button>
+                    <button class="provider-card" data-provider="gemini">
+                        <span class="provider-icon">💎</span>
+                        <span class="provider-name">Gemini</span>
+                        <span class="provider-sub">2.5 Flash / Pro</span>
+                    </button>
+                    <button class="provider-card" data-provider="nim">
+                        <span class="provider-icon">⚡</span>
+                        <span class="provider-name">NVIDIA NIM</span>
+                        <span class="provider-sub">GPU Cloud</span>
+                    </button>
+                    <button class="provider-card" data-provider="local">
+                        <span class="provider-icon">🖥️</span>
+                        <span class="provider-name">Local</span>
+                        <span class="provider-sub">Ollama</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="settings-section" id="api-key-section">
+                <label class="settings-label" for="settings-api-key">API Key</label>
+                <div class="api-key-input-wrap">
+                    <input type="password" id="settings-api-key" class="settings-input" placeholder="sk-... or AIza... or nvapi-..." autocomplete="off">
+                    <button type="button" class="toggle-key-btn" id="toggle-key-btn" title="Show/hide key">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <span class="settings-hint" id="api-key-hint">If you enter a key here, it will be saved to the local project .env file.</span>
+            </div>
+
+            <div class="settings-section" id="model-name-section">
+                <label class="settings-label" for="settings-model-name">Model Name <span style="opacity:0.5; font-weight:400;">(optional)</span></label>
+                <input type="text" id="settings-model-name" class="settings-input" placeholder="e.g. gemma4:e4b, gpt-4o-mini, gemini-2.5-flash">
+            </div>
+
+            <div id="settings-status" class="settings-status hidden"></div>
+        </div>
+
+        <div slot="footer" class="settings-footer">
+            <sl-button variant="default" class="settings-cancel-btn" id="settings-cancel-btn">Cancel</sl-button>
+            <sl-button variant="primary" id="settings-save-btn">
+                <i class="fa-solid fa-floppy-disk"></i> Save & Apply
+            </sl-button>
+        </div>
+    </sl-dialog>
+
+    <!-- App Logic -->
+    <script src="/app.js?v=2"></script>
+</body>
+</html>

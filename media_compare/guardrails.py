@@ -1,7 +1,14 @@
 from __future__ import annotations
 
+import json
+import os
+import random
 import re
+import sys
+import time
 import unicodedata
+import urllib.error
+import urllib.request
 from dataclasses import dataclass
 from datetime import date
 
@@ -162,6 +169,9 @@ def _unique_preserve_order(values: list[str]) -> list[str]:
     return result
 
 
+
+
+
 def extract_article_signals(title: str, body: str, metadata: dict[str, str]) -> ArticleSignals:
     dates: list[str] = []
     years: list[str] = []
@@ -195,6 +205,11 @@ def extract_article_signals(title: str, body: str, metadata: dict[str, str]) -> 
         if raw and _is_probable_location(raw):
             locations.append(_display_location(raw))
 
+    # Scan title for capitalized words as potential location signals (helps capture standalone country/city names)
+    for word in re.findall(r"\b([A-ZÀ-Þ][\wÀ-ÿ'’-]+)\b", title):
+        if _is_probable_location(word) and len(word) >= 3:
+            locations.append(word)
+
     # Locations are strongest in the title and lead. Scanning a full article can
     # accidentally collect background/context places, or page furniture when
     # extraction is imperfect. Keep the guardrail conservative by using only the
@@ -207,6 +222,16 @@ def extract_article_signals(title: str, body: str, metadata: dict[str, str]) -> 
             candidate = re.split(r"\b(?:said|reported|claimed|explained|warned)\b", candidate, flags=re.I)[0].strip()
             if _is_probable_location(candidate):
                 locations.append(candidate)
+
+    # Clean locations locally to prevent common preposition / stopword noise
+    locations = [
+        loc for loc in locations
+        if loc.lower() not in {
+            "with", "and", "the", "today", "yesterday", "news", "inside", "from",
+            "over", "about", "that", "were", "after", "they", "this", "there",
+            "some", "when", "more", "also", "been", "said", "have", "will"
+        }
+    ]
 
     return ArticleSignals(
         dates=_unique_preserve_order(dates),

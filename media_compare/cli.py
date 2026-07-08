@@ -9,6 +9,7 @@ from .clustering import cluster_articles
 from .llm import analyze_cluster
 from .loader import load_articles
 from .url_loader import load_articles_from_url_file
+from .fetcher import fetch_articles_from_apis
 from .reporting import cluster_summary_line, write_json_report, write_markdown_report
 from .sources import load_sources
 
@@ -54,7 +55,14 @@ def build_parser() -> argparse.ArgumentParser:
         prog="media-compare",
         description="Compare article URLs or local .txt files, cluster same stories, and synthesize source-aware recaps with OpenAI or a local LLM.",
     )
-    parser.add_argument("input", type=Path, help="A .txt file containing one article URL per line, or a folder containing legacy .txt articles")
+    parser.add_argument("input", type=Path, nargs="?", default=None, help="A .txt file containing one article URL per line, or a folder containing legacy .txt articles")
+    parser.add_argument(
+        "--query",
+        "-q",
+        type=str,
+        default=None,
+        help="Query online APIs (NewsAPI, GDELT, Brave Search) in real time to fetch and compare articles.",
+    )
     parser.add_argument(
         "--sources",
         type=Path,
@@ -81,9 +89,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--provider",
-        choices=["openai", "local", "dry-run"],
-        default=None,
-        help="LLM provider. Defaults to LLM_PROVIDER or openai.",
+        choices=["openai", "local", "dry-run", "gemini", "nim"],
+        help="LLM provider: 'openai', 'local' (Ollama), 'gemini' (Google), 'nim' (NVIDIA), or 'dry-run'.",
     )
     parser.add_argument(
         "--local-base-url",
@@ -120,6 +127,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("reports/report.json"),
         help="JSON output path for website/front-end use. Default: reports/report.json",
     )
+    parser.add_argument(
+        "--min-articles",
+        type=int,
+        default=2,
+        help="Minimum number of articles in a cluster to include in the reports. Default: 2",
+    )
     return parser
 
 
@@ -132,14 +145,31 @@ def main(argv: list[str] | None = None) -> int:
 
     args = build_parser().parse_args(argv)
 
-    if not args.input.exists():
+    if not args.input and not args.query:
+        print("Error: You must provide either an input path or a search --query.", file=sys.stderr)
+        return 2
+    if args.input and args.query:
+        print("Error: Cannot specify both an input path and a search --query.", file=sys.stderr)
+        return 2
+
+    if args.input and not args.input.exists():
         print(f"Input not found: {args.input}", file=sys.stderr)
         return 2
 
     sources = load_sources(args.sources)
     fetch_errors: list[str] = []
+    articles = []
     input_kind = "folder"
-    if args.input.is_dir():
+
+    if args.query:
+        input_kind = "api-search"
+        articles, fetch_errors = fetch_articles_from_apis(
+            args.query,
+            sources,
+            timeout=args.fetch_timeout,
+            extractor=args.extractor,
+        )
+    elif args.input.is_dir():
         articles = load_articles(args.input, sources)
     else:
         input_kind = "url-list"
@@ -159,17 +189,22 @@ def main(argv: list[str] | None = None) -> int:
     if not articles:
         if input_kind == "url-list":
             print("No readable article URLs were found in the input file.", file=sys.stderr)
+        elif input_kind == "api-search":
+            print(f"No articles retrieved from online APIs for query: '{args.query}'", file=sys.stderr)
         else:
             print("No .txt files found.", file=sys.stderr)
         return 1
 
     clusters = cluster_articles(articles, threshold=args.threshold)
-    clusters_to_analyze = clusters[: max(0, args.top)]
+    clusters_to_analyze = [c for c in clusters if len(c.articles) >= args.min_articles][: max(0, args.top)]
     provider = "dry-run" if args.dry_run else (args.provider or os.environ.get("LLM_PROVIDER", "openai"))
     selected_model = _selected_model(provider, args.model)
 
     if input_kind == "url-list":
         print(f"Loaded {len(articles)} article URL(s). Detected {len(clusters)} story cluster(s).")
+        print(f"URL extractor: {args.extractor}")
+    elif input_kind == "api-search":
+        print(f"Fetched {len(articles)} article(s) via API search. Detected {len(clusters)} story cluster(s).")
         print(f"URL extractor: {args.extractor}")
     else:
         print(f"Loaded {len(articles)} .txt article(s). Detected {len(clusters)} story cluster(s).")

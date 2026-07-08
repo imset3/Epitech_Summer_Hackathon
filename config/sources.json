@@ -11,6 +11,7 @@
       ],
       "trust": 0.92,
       "reach": 0.9,
+      "bias": "left",
       "notes": "Established national newspaper. Strong editorial process."
     },
     {
@@ -22,6 +23,7 @@
       ],
       "trust": 0.88,
       "reach": 0.75,
+      "bias": "center",
       "notes": "Public cultural broadcaster. Strong documentary/editorial standards."
     },
     {
@@ -33,6 +35,7 @@
       ],
       "trust": 0.72,
       "reach": 0.78,
+      "bias": "left",
       "notes": "Social-first media. Useful for visibility, but often shorter context."
     },
     {
@@ -46,6 +49,7 @@
       ],
       "trust": 0.94,
       "reach": 0.85,
+      "bias": "center",
       "notes": "Wire agency; often close to primary reporting."
     },
     {
@@ -59,6 +63,7 @@
       ],
       "trust": 0.85,
       "reach": 0.6,
+      "bias": "center",
       "notes": "Use as a high-confidence source for broad factual framing, especially when carrying AFP copy."
     },
     {
@@ -70,7 +75,139 @@
       ],
       "trust": 0.6,
       "reach": 0.4,
+      "bias": "right",
       "notes": "Useful for detecting what is being said in French media, but assign less weight than primary scientific institutions or international wires."
+    },
+    {
+      "name": "Reuters",
+      "aliases": [
+        "reuters",
+        "reuters.com",
+        "www.reuters.com",
+        "reuters.fr"
+      ],
+      "trust": 0.94,
+      "reach": 0.9,
+      "bias": "center",
+      "notes": "Major international news agency. High standards for factual reporting."
+    },
+    {
+      "name": "Associated Press",
+      "aliases": [
+        "ap",
+        "apnews",
+        "apnews.com",
+        "www.apnews.com",
+        "associated press",
+        "associated-press"
+      ],
+      "trust": 0.94,
+      "reach": 0.9,
+      "bias": "center",
+      "notes": "Non-profit news agency. Highly trusted wire service."
+    },
+    {
+      "name": "BBC",
+      "aliases": [
+        "bbc",
+        "bbc.com",
+        "bbc.co.uk",
+        "www.bbc.com",
+        "www.bbc.co.uk"
+      ],
+      "trust": 0.93,
+      "reach": 0.92,
+      "bias": "center",
+      "notes": "British public service broadcaster. Highly regarded globally."
+    },
+    {
+      "name": "The Guardian",
+      "aliases": [
+        "the guardian",
+        "theguardian",
+        "theguardian.com",
+        "www.theguardian.com"
+      ],
+      "trust": 0.88,
+      "reach": 0.82,
+      "bias": "left-center",
+      "notes": "British national newspaper. Reputable journalism."
+    },
+    {
+      "name": "NPR",
+      "aliases": [
+        "npr",
+        "npr.org",
+        "www.npr.org"
+      ],
+      "trust": 0.89,
+      "reach": 0.78,
+      "bias": "left-center",
+      "notes": "National Public Radio. Quality reporting with slight left-center leaning."
+    },
+    {
+      "name": "Al Jazeera",
+      "aliases": [
+        "aljazeera",
+        "al jazeera",
+        "aljazeera.com",
+        "www.aljazeera.com"
+      ],
+      "trust": 0.83,
+      "reach": 0.8,
+      "bias": "center",
+      "notes": "International news broadcaster based in Qatar."
+    },
+    {
+      "name": "The New York Times",
+      "aliases": [
+        "nytimes",
+        "new york times",
+        "nytimes.com",
+        "www.nytimes.com"
+      ],
+      "trust": 0.91,
+      "reach": 0.92,
+      "bias": "left-center",
+      "notes": "American newspaper of record. Excellent investigative reporting."
+    },
+    {
+      "name": "Bloomberg",
+      "aliases": [
+        "bloomberg",
+        "bloomberg.com",
+        "www.bloomberg.com"
+      ],
+      "trust": 0.92,
+      "reach": 0.88,
+      "bias": "center",
+      "notes": "Global business and financial news leader."
+    },
+    {
+      "name": "CNN",
+      "aliases": [
+        "cnn",
+        "cnn.com",
+        "www.cnn.com"
+      ],
+      "trust": 0.8,
+      "reach": 0.92,
+      "bias": "left",
+      "notes": "Major American cable news channel."
+    },
+    {
+      "name": "CBC",
+      "aliases": [
+        "cbc",
+        "cbc.ca",
+        "www.cbc.ca",
+        "cbc news",
+        "cbcnews"
+      ],
+      "trust": 0.89,
+      "reach": 0.76,
+      "bias": "left-center",
+      "notes": "Canadian public broadcaster. Reputable national news."
     },
     {
       "name": "Independent / Unknown",
@@ -82,7 +219,56 @@
       ],
       "trust": 0.5,
       "reach": 0.3,
+      "bias": "untracked",
       "notes": "Default when no known source is detected. Adjust per publication."
+    },
+    {
+      "name": "hackaday.com",
+      "aliases": [
+        "hackaday.com",
+        "www.hackaday.com",
+        "hackaday.com"
+      ],
+      "trust": 0.75,
+      "reach": 0.7,
+      "bias": "center",
+      "notes": "Hackaday.com is a highly respected and popular website for hardware hacking, DIY electronics, and engineering projects, known for its reliable technical content."
+    },
+    {
+      "name": "The Standard (Hong Kong)",
+      "aliases": [
+        "thestandard.com.hk",
+        "www.thestandard.com.hk",
+        "the standard (hong kong)"
+      ],
+      "trust": 0.55,
+      "reach": 0.5,
+      "bias": "left-center",
+      "notes": "The Standard is Hong Kong's premier free English news outlet, known for its left-center bias and mixed factual reporting, earning a medium credibility rating."
+    },
+    {
+      "name": "Wired",
+      "aliases": [
+        "wired.com",
+        "www.wired.com",
+        "wired"
+      ],
+      "trust": 0.9,
+      "reach": 0.85,
+      "bias": "left-center",
+      "notes": "Wired is a highly credible publication with high factual reporting, a left-center bias, and significant reach, focusing on technology and culture."
+    },
+    {
+      "name": "foxsports.com",
+      "aliases": [
+        "foxsports.com",
+        "www.foxsports.com",
+        "foxsports.com"
+      ],
+      "trust": 0.75,
+      "reach": 0.75,
+      "bias": "center",
+      "notes": "FOX Sports is generally considered a center-leaning source for sports news and analysis, with factual reporting on events."
     }
   ]
 }
