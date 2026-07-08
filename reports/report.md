@@ -18,13 +18,13 @@
 - Date guardrail: shared primary date signal 2026-07-08.
 - Location guardrail: shared location signal(s) Lyon.
 
-**Suggested headline:** Fire at chemical factory injures fifteen people
+**Suggested headline:** Fire at Chemical Factory Near Lyon Injures Fifteen People; Smoke Cloud Causes Evacuations
 
-Fire at chemical factory injures fifteen people: (71%) 15 injured | (29%) 2 dead and 13 injured. A fire broke out on Wednesday morning at a chemical factory near Lyon, forcing emergency services to evacuate nearby streets. According to local authorities, fifteen people were injured, most of them lightly, after inhaling smoke. The prefecture said the fire was under control by midday and that air-quality checks were continuing around the site. Residents near an industrial area outside Lyon were briefly evacuated after a fire at a chemical plant. Emergency services said smoke spread over several blocks before the blaze was contained. This dry-run recap is based on 3 local .txt file(s), reported by Le Monde, Brut, ARTE, with weighted support 2.51 and local similarity 0.30.
+On Wednesday morning, July 8, 2026, a fire occurred at a chemical factory in an industrial area outside Lyon. The blaze prompted local authorities to evacuate nearby streets and blocks due to the spread of smoke from the plant. Emergency services reported that the fire was contained by midday, with environmental monitoring teams continuing air-quality checks around the site. Multiple reports indicate that fifteen people were injured, primarily suffering from smoke inhalation. However, there is conflicting information regarding the casualty count; while some sources report 15 injuries, other witness claims mentioned a higher number of casualties and fatalities. Authorities stated they are investigating the cause of the blaze and continuing environmental monitoring in the affected area.
 
 **Conflict / uncertain details:**
 - casualty count: (71%) 15 injured | (29%) 2 dead and 13 injured
-  Reason: Different casualty claims appear in Le Monde, ARTE and Brut.
+  Reason: Conflicting casualty claims were detected in Le Monde, ARTE and Brut.
 
 **Files in cluster:**
 - Le Monde: `samples/lemonde_factory_fire.txt` — Fire at chemical factory injures fifteen people
@@ -43,15 +43,19 @@ Fire at chemical factory injures fifteen people: (71%) 15 injured | (29%) 2 dead
 - Prototype score: 1.90
 - Date signals: 2026-07-07
 - Location signals: Asia
-- Recap confidence: High (78.4/100) — The recap is well supported by this local corpus. Still verify any volatile details before publishing.
+- Recap confidence: Medium (72.4/100) — Use the recap as a working version, but search for more data before treating it as settled.
 
 **Date/location guardrails:**
 - Date guardrail: shared primary date signal 2026-07-07.
 - Location guardrail: location data is limited to one source or not corroborated; do not treat the place as fully confirmed.
 
-**Suggested headline:** Sea surface temperatures keep rising, partly due to the appearance of a new El Niño
+**Suggested headline:** Experts warn of potentially record-breaking El Niño event in 2026, citing combination of natural cycle and human-driven climate change
 
-This year's El Niño likely to become a record-breaker, top expert says. France24 carries an AFP report saying the current El Niño is likely to become record-breaking in its overall strength. The article cites Tim Stockdale, an El Niño specialist at the European Centre for Medium-Range Weather Forecasts, who says forecast models are unusually strong and consistent in pointing toward an extreme event. The article explains that El Niño warms the central and eastern equatorial Pacific, changing global wind, pressure and rainfall patterns. CNews reports that forecast models are pointing toward a potentially extreme El Niño episode in 2026. The article presents El Niño as a climate phenomenon capable of disrupting weather patterns far beyond the tropical Pacific, with a stronger event increasing the likelihood of heat waves, droughts, heavy rain, floods and other extreme weather events. This dry-run recap is based on 3 local .txt file(s), reported by Independent / Unknown, France24, CNews, with weighted support 1.85 and local similarity 0.27.
+Multiple reports indicate that forecasters are anticipating a potentially extreme or record-breaking El Niño episode in 2026, which is expected to significantly disrupt global weather patterns. This natural cycle warms the central and eastern equatorial Pacific, affecting rainfall, wind, and pressure across regions including Asia, Africa, South America, and Australia. While the event itself can cause both droughts and flooding, its full impact is amplified by long-term human-driven climate change, which raises the baseline global temperature. The reports emphasize that this combination of factors increases risks for severe weather events such as heat waves, hurricanes, floods, and landslides globally. Specific details regarding the exact peak timing or intensity level are disputed across sources, but all warn that populations should prepare for heightened climate volatility.
+
+**Conflict / uncertain details:**
+- reported detail requiring source comparison: Stable point: the core story is supported by the cluster | Unresolved point: Specific details regarding the exact peak timing or intensity level are disputed across sources, but all warn that populations should prepare for heightened climate volatility.
+  Reason: The model described a conflict or uncertainty in the synthesis but did not return it as a structured conflict item.
 
 **Files in cluster:**
 - Independent / Unknown: `samples/jeuxvideo_ocean_temperature_el_nino.txt` — Sea surface temperatures keep rising, partly due to the appearance of a new El Niño
@@ -69,15 +73,19 @@ This year's El Niño likely to become a record-breaker, top expert says. France2
 - Date/location guardrail score: 0.80
 - Prototype score: 0.56
 - Date signals: 2026-07-08
-- Recap confidence: Low (6.3/100) — Treat the recap as a lead only. Search for more independent sources before relying on it.
+- Recap confidence: Low (0.3/100) — Treat the recap as a lead only. Search for more independent sources before relying on it.
 
 **Date/location guardrails:**
 - Date guardrail: shared primary date signal 2026-07-08.
 - Location guardrail: no usable location signal found.
 
-**Suggested headline:** Government presents new housing bill
+**Suggested headline:** Government Presents New Housing Bill Aimed at Increasing Urban Construction
 
-Government presents new housing bill. The government presented a new housing bill on Wednesday aimed at increasing construction in dense urban areas. Ministers said the plan would simplify permits and encourage local authorities to open more land for residential projects. Opposition lawmakers criticised the proposal, saying it did not provide enough funding for social housing. This dry-run recap is based on 1 local .txt file(s), reported by Independent / Unknown, with weighted support 0.47 and local similarity 1.00.
+The government introduced a new housing bill on Wednesday, July 8, 2026, with the stated goal of increasing construction within dense urban areas. Ministers supporting the plan indicated that key components include simplifying building permits and encouraging local authorities to allocate more land for residential projects. However, opposition lawmakers criticized the proposal, arguing specifically that it does not provide enough funding dedicated to social housing. A conflict exists regarding the overall sufficiency of the funding provided by the bill.
+
+**Conflict / uncertain details:**
+- reported detail requiring source comparison: Stable point: the core story is supported by the cluster | Unresolved point: A conflict exists regarding the overall sufficiency of the funding provided by the bill.
+  Reason: The model described a conflict or uncertainty in the synthesis but did not return it as a structured conflict item.
 
 **Files in cluster:**
 - Independent / Unknown: `samples/independent_housing_bill.txt` — Government presents new housing bill

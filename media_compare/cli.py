@@ -101,6 +101,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("reports/report.md"),
         help="Markdown output path. Default: reports/report.md",
     )
+    parser.add_argument(
+        "--out-json",
+        type=Path,
+        default=None,
+        help="JSON output path for structured cluster statistics and LLM recaps.",
+    )
     return parser
 
 
@@ -159,8 +165,45 @@ def main(argv: list[str] | None = None) -> int:
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     write_markdown_report(output_path, clusters, analyses)
-
     print(f"Wrote {output_path}")
+
+    if args.out_json:
+        import json
+        from .confidence import recap_confidence
+
+        json_output_path = args.out_json
+        json_output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        output_data = []
+        for cluster, analysis in zip(clusters_to_analyze, analyses):
+            conf = recap_confidence(cluster, analysis)
+            output_data.append({
+                "cluster_id": cluster.cluster_id,
+                "score": cluster.score,
+                "avg_similarity": cluster.avg_similarity,
+                "avg_best_similarity": cluster.avg_best_similarity,
+                "similarity_coverage": cluster.similarity_coverage,
+                "guardrail_score": cluster.guardrail_score,
+                "guardrail_notes": cluster.guardrail_notes,
+                "sources": cluster.distinct_sources,
+                "articles": [
+                    {
+                        "article_id": a.article_id,
+                        "source": a.source.name,
+                        "title": a.title,
+                        "url": a.metadata.get("url", ""),
+                        "date": a.signals.dates[0] if a.signals.dates else None,
+                        "locations": a.signals.locations
+                    } for a in cluster.articles
+                ],
+                "analysis": analysis,
+                "confidence": conf
+            })
+
+        with open(json_output_path, "w", encoding="utf-8") as f:
+            json.dump(output_data, f, indent=2, ensure_ascii=False)
+        print(f"Wrote structured JSON to {json_output_path}")
+
     return 0
 
 
