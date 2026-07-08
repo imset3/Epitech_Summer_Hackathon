@@ -28,6 +28,13 @@ def _analysis_body(analysis: dict[str, Any]) -> str:
     )
 
 
+def _has_volatile_detail(item: dict[str, Any]) -> bool:
+    return any(
+        str(item.get(key, "")).strip()
+        for key in ("option_1", "option_2", "reason")
+    )
+
+
 def write_markdown_report(path: Path, clusters: list[StoryCluster], analyses: list[dict[str, Any]]) -> None:
     analysis_by_id = {item.get("cluster_id"): item for item in analyses}
     lines: list[str] = ["# Media story comparison report", ""]
@@ -50,14 +57,20 @@ def write_markdown_report(path: Path, clusters: list[StoryCluster], analyses: li
             if body:
                 lines.append(body)
                 lines.append("")
-            volatile = analysis.get("volatile_elements", [])
+            volatile = [
+                item for item in analysis.get("volatile_elements", [])
+                if isinstance(item, dict) and _has_volatile_detail(item)
+            ]
             if volatile:
-                lines.append("**Volatile elements:**")
+                lines.append("**Conflict / uncertain details:**")
                 for item in volatile:
+                    reason = str(item.get("reason", "")).strip()
                     lines.append(
                         f"- {item.get('element', 'detail')}: "
                         f"{item.get('option_1', '')} | {item.get('option_2', '')}"
                     )
+                    if reason:
+                        lines.append(f"  Reason: {reason}")
                 lines.append("")
         else:
             lines.append("No API synthesis was generated for this story.")

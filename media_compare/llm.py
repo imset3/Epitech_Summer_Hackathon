@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 import os
 import re
+import urllib.error
+import urllib.request
 from typing import Any
 
 from .models import StoryCluster
@@ -25,10 +27,7 @@ STORY_ANALYSIS_SCHEMA: dict[str, Any] = {
         },
         "compiled_body": {
             "type": "string",
-            "description": (
-                "A detailed recap paragraph compiling stable facts and disputed details. "
-                "Use inline alternatives for volatile details in the exact format '(XX%) option 1 | (YY%) option 2'."
-            ),
+            "description": "A detailed recap paragraph compiling stable facts and disputed details.",
         },
         "volatile_elements": {
             "type": "array",
@@ -114,26 +113,131 @@ def _casualty_claim(sentence: str) -> str | None:
     return None
 
 
+def _volatile_claim_hints(cluster: StoryCluster) -> str:
+    claims = _extract_casualty_claims(cluster)
+    if len(claims) < 2:
+        return ""
+
+    lines = [
+        "Locally detected volatile claim candidates:",
+        *[
+            f"- {claim} ({weight:.0f}% weighted support from {sources})"
+            for claim, weight, sources in claims
+        ],
+    ]
+    return "\n".join(lines)
+
+
 def _make_prompt(cluster: StoryCluster) -> str:
     payload = cluster.to_prompt_payload()
+    volatile_hints = _volatile_claim_hints(cluster)
     return f"""
 Compare these articles as reports about one possible news story.
 
 Rules:
 - Do not invent facts that are not in the supplied texts.
 - Separate stable facts from volatile/disputed facts.
+- Never erase a conflict by choosing only the smoother or majority version.
 - Give more importance to sources with higher trust, but still note when several lower-weight sources agree.
 - Prefer the story version that is both coherent and corroborated.
 - Produce a real recap body, not just a headline. The body should compile the event, location, timing, consequences, official response, witness claims, uncertainty, and follow-up actions when present.
 - The compiled_body should normally be 1 paragraph of 5 to 9 sentences. Use 2 paragraphs only if the story is dense.
-- For disputed or volatile details, use inline alternatives in the compiled_body with this exact structure: "(XX%) option 1 | (YY%) option 2".
+- Put disputed or volatile details in volatile_elements so the report can display a separate conflict section.
+- In compiled_body, briefly mention that a conflict exists, but do not rely on the paragraph as the only place where the conflict appears.
+- If locally detected volatile claim candidates are listed, include them in volatile_elements and mention the uncertainty in compiled_body.
 - Percentages are support estimates based on source trust/reach weights and corroboration inside this cluster. They are not mathematical proof.
+- Do not attach percentages to source names or stable claims. Use percentages only inside volatile_elements options.
 - Example: "Fire at a chemical factory near Lyon: (60%) 15 injured | (12%) 2 dead and 13 injured, while a large smoke cloud spread around the site and authorities evacuated nearby streets."
 - If a volatile element has more than two versions, put the two most important or most representative versions in option_1 and option_2.
 
 Cluster data:
 {json.dumps(payload, ensure_ascii=False, indent=2)}
+
+{volatile_hints}
 """.strip()
+
+
+def _system_prompt() -> str:
+    return (
+        "You are a careful media-analysis assistant. "
+        "You compare multiple reports of the same event and produce neutral, source-aware synthesis. "
+        "Your recap must compile details from all supplied reports and clearly mark volatile details. "
+        "When sources disagree, preserve the disagreement instead of resolving it silently. "
+        "Return only valid JSON that matches the requested schema."
+    )
+
+
+def _parse_json_response(raw_text: str) -> dict[str, Any]:
+    raw_text = raw_text.strip()
+    try:
+        return json.loads(raw_text)
+    except json.JSONDecodeError:
+        start = raw_text.find("{")
+        end = raw_text.rfind("}")
+        if start < 0 or end <= start:
+            raise
+        return json.loads(raw_text[start:end + 1])
+
+
+_CONFLICT_HINT_RE = re.compile(
+    r"\b(conflict|conflicting|disagree|disagrees|disagreement|differ|differs|different|disputed|uncertain|uncertainty|unclear|unconfirmed|not confirmed)\b",
+    re.I,
+)
+
+
+def _text_detected_volatile_elements(analysis: dict[str, Any]) -> list[dict[str, str]]:
+    body = str(analysis.get("compiled_body") or analysis.get("paragraph") or "")
+    if not body:
+        return []
+
+    for sentence in _first_sentences(body, limit=10):
+        if _CONFLICT_HINT_RE.search(sentence):
+            return [
+                {
+                    "element": "reported detail requiring source comparison",
+                    "option_1": "Stable point: the core story is supported by the cluster",
+                    "option_2": f"Unresolved point: {sentence}",
+                    "reason": (
+                        "The model described a conflict or uncertainty in the synthesis "
+                        "but did not return it as a structured conflict item."
+                    ),
+                }
+            ]
+    return []
+
+
+def _ensure_analysis_shape(analysis: dict[str, Any], cluster: StoryCluster) -> dict[str, Any]:
+    defaults: dict[str, Any] = {
+        "cluster_id": cluster.cluster_id,
+        "headline": f"Story #{cluster.cluster_id}",
+        "coherence_rating": cluster.avg_similarity,
+        "most_supported_version": "",
+        "compiled_body": "",
+        "volatile_elements": [],
+        "source_notes": [],
+    }
+    normalized = {**defaults, **analysis}
+    normalized["cluster_id"] = int(normalized.get("cluster_id") or cluster.cluster_id)
+    if isinstance(normalized["volatile_elements"], list):
+        normalized["volatile_elements"] = [
+            item for item in normalized["volatile_elements"]
+            if isinstance(item, dict)
+            and (
+                str(item.get("option_1", "")).strip()
+                or str(item.get("option_2", "")).strip()
+                or str(item.get("reason", "")).strip()
+            )
+        ]
+    else:
+        normalized["volatile_elements"] = []
+    for detected_item in _detected_volatile_elements(cluster):
+        if not any(item.get("element") == detected_item["element"] for item in normalized["volatile_elements"]):
+            normalized["volatile_elements"].append(detected_item)
+    if not normalized["volatile_elements"]:
+        normalized["volatile_elements"].extend(_text_detected_volatile_elements(normalized))
+    if not isinstance(normalized["source_notes"], list):
+        normalized["source_notes"] = []
+    return normalized
 
 
 def analyze_cluster_with_api(cluster: StoryCluster, model: str | None = None) -> dict[str, Any]:
@@ -150,11 +254,7 @@ def analyze_cluster_with_api(cluster: StoryCluster, model: str | None = None) ->
         input=[
             {
                 "role": "system",
-                "content": (
-                    "You are a careful media-analysis assistant. "
-                    "You compare multiple reports of the same event and produce neutral, source-aware synthesis. "
-                    "Your recap must compile details from all supplied reports and clearly mark volatile details."
-                ),
+                "content": _system_prompt(),
             },
             {"role": "user", "content": _make_prompt(cluster)},
         ],
@@ -168,7 +268,69 @@ def analyze_cluster_with_api(cluster: StoryCluster, model: str | None = None) ->
         },
     )
 
-    return json.loads(response.output_text)
+    return _ensure_analysis_shape(json.loads(response.output_text), cluster)
+
+
+def analyze_cluster_with_local_llm(
+    cluster: StoryCluster,
+    model: str | None = None,
+    base_url: str | None = None,
+) -> dict[str, Any]:
+    selected_model = model or os.environ.get("LOCAL_LLM_MODEL", "gemma4:e4b")
+    selected_base_url = (base_url or os.environ.get("LOCAL_LLM_BASE_URL") or "http://localhost:11434").rstrip("/")
+    endpoint = f"{selected_base_url}/api/chat"
+    prompt = (
+        f"{_make_prompt(cluster)}\n\n"
+        "Return only one JSON object with these keys: cluster_id, headline, coherence_rating, "
+        "most_supported_version, compiled_body, volatile_elements, source_notes."
+    )
+    payload = {
+        "model": selected_model,
+        "stream": False,
+        "format": "json",
+        "messages": [
+            {"role": "system", "content": _system_prompt()},
+            {"role": "user", "content": prompt},
+        ],
+        "options": {
+            "temperature": 0.2,
+        },
+    }
+    request = urllib.request.Request(
+        endpoint,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=180) as response:
+            response_payload = json.loads(response.read().decode("utf-8"))
+    except urllib.error.URLError as exc:
+        raise RuntimeError(
+            f"Could not reach local LLM at {endpoint}. "
+            "Start Ollama or set LOCAL_LLM_BASE_URL to a reachable server."
+        ) from exc
+
+    content = response_payload.get("message", {}).get("content", "")
+    if not content:
+        raise RuntimeError(f"Local LLM response did not include message.content: {response_payload}")
+    return _ensure_analysis_shape(_parse_json_response(content), cluster)
+
+
+def analyze_cluster(
+    cluster: StoryCluster,
+    provider: str = "openai",
+    model: str | None = None,
+    local_base_url: str | None = None,
+) -> dict[str, Any]:
+    if provider == "dry-run":
+        return analyze_cluster_dry_run(cluster)
+    if provider == "local":
+        return analyze_cluster_with_local_llm(cluster, model=model, base_url=local_base_url)
+    if provider == "openai":
+        return analyze_cluster_with_api(cluster, model=model)
+    raise ValueError(f"Unknown LLM provider: {provider}")
 
 
 def _support_percentages(cluster: StoryCluster) -> dict[str, float]:
@@ -206,6 +368,21 @@ def _extract_casualty_claims(cluster: StoryCluster) -> list[tuple[str, float, st
         reverse=True,
     )
     return sorted_claims[:2]
+
+
+def _detected_volatile_elements(cluster: StoryCluster) -> list[dict[str, str]]:
+    claims = _extract_casualty_claims(cluster)
+    if len(claims) < 2:
+        return []
+
+    return [
+        {
+            "element": "casualty count",
+            "option_1": f"({claims[0][1]:.0f}%) {claims[0][0]}",
+            "option_2": f"({claims[1][1]:.0f}%) {claims[1][0]}",
+            "reason": f"Conflicting casualty claims were detected in {claims[0][2]} and {claims[1][2]}.",
+        }
+    ]
 
 
 def _make_dry_run_body(cluster: StoryCluster) -> tuple[str, list[dict[str, str]]]:

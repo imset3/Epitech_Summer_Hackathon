@@ -7,6 +7,16 @@ from .models import Article, SourceProfile
 from .sources import detect_source
 
 SUPPORTED_EXTENSIONS = {".txt"}
+SUPPORTED_METADATA_KEYS = {
+    "source",
+    "source_id",
+    "title",
+    "date",
+    "publication_date",
+    "language",
+    "url",
+    "author",
+}
 
 
 def _parse_front_matter(raw: str) -> tuple[dict[str, str], str]:
@@ -14,8 +24,11 @@ def _parse_front_matter(raw: str) -> tuple[dict[str, str], str]:
 
     Supported lines:
         SOURCE: Le Monde
+        SOURCE_ID: lemonde
         TITLE: Example title
         DATE: 2026-07-08
+        PUBLICATION_DATE: 2026-07-08
+        LANGUAGE: English
 
     Parsing stops at the first blank line or non key/value line.
     """
@@ -33,7 +46,7 @@ def _parse_front_matter(raw: str) -> tuple[dict[str, str], str]:
             break
         key, value = stripped.split(":", 1)
         key = key.strip().lower()
-        if key not in {"source", "title", "date", "url", "author"}:
+        if key not in SUPPORTED_METADATA_KEYS:
             body_start = i
             break
         metadata[key] = value.strip()

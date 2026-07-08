@@ -43,8 +43,15 @@ def load_sources(config_path: Path) -> list[SourceProfile]:
 
 def detect_source(text_hint: str, sources: list[SourceProfile]) -> SourceProfile:
     hint = normalize(text_hint.replace("_", " ").replace("-", " "))
+    matches: list[tuple[int, int, SourceProfile]] = []
     for source in sources:
         candidates = [source.name, *source.aliases]
-        if any(normalize(candidate) in hint for candidate in candidates):
-            return source
+        for candidate in candidates:
+            normalized_candidate = normalize(candidate)
+            index = hint.find(normalized_candidate)
+            if index >= 0:
+                matches.append((index, -len(normalized_candidate), source))
+                break
+    if matches:
+        return min(matches, key=lambda match: (match[0], match[1]))[2]
     return next((s for s in sources if s.name == DEFAULT_UNKNOWN.name), DEFAULT_UNKNOWN)
