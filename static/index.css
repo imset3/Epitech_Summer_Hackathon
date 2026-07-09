@@ -289,6 +289,18 @@ button, input {
     padding: 0.35rem 0.65rem;
 }
 
+.summary-pill {
+    cursor: help;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.summary-pill i {
+    color: var(--text-muted);
+    font-size: 0.7rem;
+}
+
 .results-summary strong {
     color: var(--text-primary);
 }
@@ -929,6 +941,22 @@ button, input {
     align-items: center;
     gap: 0.5rem;
     color: var(--text-primary);
+}
+
+.section-help {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.1);
+    font-family: var(--font-inter);
+    font-size: 0.72rem;
+    font-weight: 800;
+    cursor: help;
 }
 
 .recap-body {

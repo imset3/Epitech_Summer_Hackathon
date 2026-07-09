@@ -714,10 +714,10 @@ document.addEventListener("DOMContentLoaded", () => {
             (cluster.articles || []).forEach(article => sourceNames.add(article.publisher || article.source || "Unknown"));
         });
         resultsSummary.innerHTML = `
-            <span><strong>${clusters.length}</strong> story cluster${clusters.length === 1 ? "" : "s"}</span>
-            <span><strong>${articleCount}</strong> article${articleCount === 1 ? "" : "s"}</span>
-            <span><strong>${sourceNames.size}</strong> source${sourceNames.size === 1 ? "" : "s"}</span>
-            <span><strong>${(warnings || []).length}</strong> warning${(warnings || []).length === 1 ? "" : "s"}</span>
+            <span class="summary-pill" title="Story clusters are groups of articles that appear to cover the same event."><strong>${clusters.length}</strong> story cluster${clusters.length === 1 ? "" : "s"} <i class="fa-regular fa-circle-question"></i></span>
+            <span class="summary-pill" title="Articles are fetched URLs kept after discovery, deduplication, and scraping or snippet fallback."><strong>${articleCount}</strong> article${articleCount === 1 ? "" : "s"} <i class="fa-regular fa-circle-question"></i></span>
+            <span class="summary-pill" title="Sources are unique publishers or domains represented across the fetched articles. Multiple articles can come from one source."><strong>${sourceNames.size}</strong> source${sourceNames.size === 1 ? "" : "s"} <i class="fa-regular fa-circle-question"></i></span>
+            <span class="summary-pill" title="Warnings are non-fatal fetch or API issues. The system continues with available sources when possible."><strong>${(warnings || []).length}</strong> warning${(warnings || []).length === 1 ? "" : "s"} <i class="fa-regular fa-circle-question"></i></span>
         `;
     }
 
@@ -763,7 +763,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }));
             appendMarkdownList(lines, "Single Source Information", analysis.single_source_claims);
             appendMarkdownList(lines, "Uncertain Information", analysis.uncertain_claims);
-            appendMarkdownList(lines, "Source Focus", analysis.source_report_focus);
+            appendMarkdownList(lines, "What Each Source Emphasized", analysis.source_report_focus);
+            appendMarkdownList(lines, "Source Quality Notes", analysis.source_notes);
             lines.push("### AI Neutral Recap", "", analysis.compiled_body || analysis.paragraph || "No summary generated.", "");
         });
         return lines.join("\n");
@@ -984,22 +985,22 @@ document.addEventListener("DOMContentLoaded", () => {
         renderAnalysisList(
             modalCommonFactsList,
             cluster.analysis.common_facts,
-            "No common facts were explicitly extracted. Review the recap and source focus."
+            "No separate common-fact bullets were extracted; use the recap and source emphasis below as the working summary."
         );
         renderAnalysisList(
             modalSingleSourceList,
             cluster.analysis.single_source_claims,
-            "No single-source-only claims were explicitly extracted."
+            "No single-source-only claims were separated from the current article cluster."
         );
         renderAnalysisList(
             modalUncertainList,
             cluster.analysis.uncertain_claims,
-            "No additional uncertain information was explicitly extracted."
+            "No additional uncertainty was separated beyond the conflict checks and guardrails."
         );
         renderAnalysisList(
             modalSourceFocusList,
             cluster.analysis.source_report_focus,
-            "No per-source focus notes were generated."
+            "No per-source emphasis was separated; review the recap and article list."
         );
 
         // Render Banner Image in Modal
@@ -1019,7 +1020,7 @@ document.addEventListener("DOMContentLoaded", () => {
         modalVolatileList.innerHTML = "";
         const volatile = cluster.analysis.volatile_elements || [];
         if (volatile.length === 0) {
-            modalVolatileList.innerHTML = "<li>No conflicting details detected. All sources provide corroborating information.</li>";
+            modalVolatileList.innerHTML = "<li>No separate conflicting detail was detected in this article cluster.</li>";
         } else {
             volatile.forEach(item => {
                 if (typeof item === 'object') {

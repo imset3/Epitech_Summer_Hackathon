@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.0/cdn/themes/dark.css" />
     <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.0/cdn/shoelace-autoloader.js"></script>
 
-    <link rel="stylesheet" href="/index.css?v=10">
+    <link rel="stylesheet" href="/index.css?v=11">
 </head>
 <body>
     <div id="app-root" class="app-container initial-state">
@@ -242,7 +242,11 @@
                 </div>
 
                 <div class="volatile-box">
-                    <h3><i class="fa-solid fa-triangle-exclamation"></i> Uncertain / Conflicting Details</h3>
+                    <h3>
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        Uncertain / Conflicting Details
+                        <span class="section-help" title="Conflict percentages estimate source-weighted support inside this article cluster. They are not truth probabilities.">?</span>
+                    </h3>
                     <ul id="modal-volatile-list" class="volatile-list">
                         <!-- Volatile items -->
                     </ul>
@@ -259,12 +263,12 @@
                 </div>
 
                 <div class="verification-box">
-                    <h3><i class="fa-solid fa-newspaper"></i> Source Focus</h3>
+                    <h3><i class="fa-solid fa-newspaper"></i> What Each Source Emphasized</h3>
                     <ul id="modal-source-focus-list" class="analysis-list"></ul>
                 </div>
 
                 <div class="sources-notes-box">
-                    <h3><i class="fa-solid fa-circle-info"></i> Source Notes</h3>
+                    <h3><i class="fa-solid fa-circle-info"></i> Source Quality Notes</h3>
                     <ul id="modal-notes-list" class="notes-list">
                         <!-- Notes items -->
                     </ul>
@@ -404,6 +408,6 @@
     </sl-dialog>
 
     <!-- App Logic -->
-    <script src="/app.js?v=10"></script>
+    <script src="/app.js?v=11"></script>
 </body>
 </html>
