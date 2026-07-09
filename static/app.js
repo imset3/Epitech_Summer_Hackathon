@@ -9,9 +9,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const searchInputHero = document.getElementById("search-input-hero");
     
     const loadingState = document.getElementById("loading");
+    const loadingStage = document.getElementById("loading-stage");
+    const loadingPercent = document.getElementById("loading-percent");
+    const loadingProgressBar = document.getElementById("loading-progress-bar");
     const errorState = document.getElementById("error-state");
     const storiesContainer = document.getElementById("stories-container");
     const resultsMetaTabs = document.getElementById("results-meta-tabs");
+    const resultsToolbar = document.getElementById("results-toolbar");
+    const resultsSummary = document.getElementById("results-summary");
+    const warningsPanel = document.getElementById("warnings-panel");
+    const downloadMdBtn = document.getElementById("download-md-btn");
+    const downloadJsonBtn = document.getElementById("download-json-btn");
     
     // Columns
     const leftColContainer = document.getElementById("left-col-container");
@@ -32,7 +40,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const modalConfidence = document.getElementById("modal-confidence");
     const modalSourcesCount = document.getElementById("modal-sources-count");
     const modalRecapBody = document.getElementById("modal-recap-body");
+    const modalCommonFactsList = document.getElementById("modal-common-facts-list");
     const modalVolatileList = document.getElementById("modal-volatile-list");
+    const modalSingleSourceList = document.getElementById("modal-single-source-list");
+    const modalUncertainList = document.getElementById("modal-uncertain-list");
+    const modalSourceFocusList = document.getElementById("modal-source-focus-list");
     const modalNotesList = document.getElementById("modal-notes-list");
     
     // Modal Bias Chart
@@ -48,6 +60,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const laneUntracked = document.getElementById("untracked-outlets-list");
 
     let currentClustersData = [];
+    let currentQuery = "";
+    let currentWarnings = [];
+    let progressTimer = null;
+    let progressValue = 0;
+
+    function syncDetailsModalLayout() {
+        if (!modal) return;
+        const viewport = window.visualViewport || window;
+        const viewportWidth = viewport.width || window.innerWidth;
+        const viewportHeight = viewport.height || window.innerHeight;
+        const widthRatio = viewportWidth < 760 ? 0.98 : 0.96;
+        const modalWidth = Math.max(320, Math.min(Math.round(viewportWidth * widthRatio), 1560));
+        const modalHeight = Math.max(420, Math.round(viewportHeight * 0.92));
+
+        modal.style.setProperty("--width", `${modalWidth}px`);
+        modal.style.setProperty("--details-modal-max-height", `${modalHeight}px`);
+        modal.style.setProperty("--details-modal-padding", modalWidth < 760 ? "1.25rem" : (modalWidth < 1180 ? "2rem" : "3rem"));
+        modal.classList.toggle("modal-layout-stacked", modalWidth < 1180);
+        modal.classList.toggle("trust-lanes-two", modalWidth >= 760 && modalWidth < 1380);
+        modal.classList.toggle("trust-lanes-one", modalWidth < 760);
+    }
 
     // ── Settings & Model State ───────────────────────────────────────
     const settingsBtn    = document.getElementById("settings-btn");
@@ -56,6 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const settingsCancelBtn = document.getElementById("settings-cancel-btn");
     const settingsApiKey = document.getElementById("settings-api-key");
     const settingsModelName = document.getElementById("settings-model-name");
+    const settingsConfigToken = document.getElementById("settings-config-token");
     const settingsStatus = document.getElementById("settings-status");
     const toggleKeyBtn   = document.getElementById("toggle-key-btn");
     const providerGrid   = document.getElementById("provider-grid");
@@ -69,6 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let activeProvider = "dry-run";
     let activeModel    = "";
     let keysPresent = {};
+    let lastConfigError = "";
 
     // Model emoji labels for pill
     const PROVIDER_LABELS = {
@@ -78,6 +113,32 @@ document.addEventListener("DOMContentLoaded", () => {
         "nim":     "⚡ NVIDIA NIM",
         "local":   "🖥️ Local",
     };
+
+    const PROVIDER_DEFAULT_MODELS = {
+        "dry-run": "",
+        "openai": "gpt-4o-mini",
+        "gemini": "gemini-2.5-flash",
+        "nim": "meta/llama-3.1-8b-instruct",
+        "local": "gemma4:e4b",
+    };
+
+    function modelMatchesProvider(provider, model) {
+        if (!model) return true;
+        if (provider === "dry-run") return model === "";
+        if (provider === "openai") return model === "gpt-4o-mini";
+        if (provider === "gemini") return model.startsWith("gemini-");
+        if (provider === "nim") return model.includes("/") || model.startsWith("nvidia-");
+        if (provider === "local") return !model.startsWith("gpt-") && !model.startsWith("gemini-") && !model.includes("/");
+        return true;
+    }
+
+    function defaultModelForProvider(provider) {
+        return PROVIDER_DEFAULT_MODELS[provider] || "";
+    }
+
+    function modelForProvider(provider, model) {
+        return modelMatchesProvider(provider, model) ? (model || defaultModelForProvider(provider)) : defaultModelForProvider(provider);
+    }
 
     function updateProviderBadge(provider, model) {
         const label = model
@@ -110,6 +171,181 @@ document.addEventListener("DOMContentLoaded", () => {
         return data;
     }
 
+    function parseJsonish(value) {
+        if (typeof value !== "string") return value;
+        let text = value.trim();
+        const fence = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+        if (fence) text = fence[1].trim();
+        if (!text || !["{", "["].includes(text[0])) return value;
+        try {
+            return JSON.parse(text);
+        } catch {
+            return value;
+        }
+    }
+
+    function humanizeValue(value) {
+        value = parseJsonish(value);
+        if (value === null || value === undefined) return "";
+        if (typeof value === "string") return value.trim();
+        if (Array.isArray(value)) {
+            return value.map(humanizeValue).filter(Boolean).join("; ");
+        }
+        if (typeof value === "object") {
+            const preferredKeys = ["fact", "claim", "summary", "text", "description", "focus", "note", "reason"];
+            for (const key of preferredKeys) {
+                const preferred = humanizeValue(value[key]);
+                if (preferred) {
+                    const source = humanizeValue(value.source || value.publisher);
+                    return source ? `${source}: ${preferred}` : preferred;
+                }
+            }
+            return Object.entries(value)
+                .map(([key, item]) => {
+                    const text = humanizeValue(item);
+                    return text ? `${key}: ${text}` : "";
+                })
+                .filter(Boolean)
+                .join("; ");
+        }
+        return String(value).trim();
+    }
+
+    function normalizeStringList(value) {
+        value = parseJsonish(value);
+        if (value === null || value === undefined || value === "") return [];
+        if (Array.isArray(value)) {
+            return value.map(humanizeValue).filter(Boolean);
+        }
+        const text = humanizeValue(value);
+        return text ? [text] : [];
+    }
+
+    function normalizeVolatileElements(value) {
+        value = parseJsonish(value);
+        if (value === null || value === undefined || value === "") return [];
+        const rawItems = Array.isArray(value) ? value : [value];
+        return rawItems.map(item => {
+            item = parseJsonish(item);
+            if (item && typeof item === "object" && !Array.isArray(item)) {
+                return {
+                    element: humanizeValue(item.element || item.claim || item.detail || "detail"),
+                    option_1: humanizeValue(item.option_1 || item.version_1 || item.supported || ""),
+                    option_2: humanizeValue(item.option_2 || item.version_2 || item.disputed || ""),
+                    reason: humanizeValue(item.reason || item.note || item.explanation || ""),
+                };
+            }
+            return {
+                element: "reported detail requiring source comparison",
+                option_1: "",
+                option_2: humanizeValue(item),
+                reason: "The model returned this uncertainty as unstructured text.",
+            };
+        }).filter(item => item.option_1 || item.option_2 || item.reason);
+    }
+
+    function normalizeAnalysis(analysis) {
+        analysis = parseJsonish(analysis);
+        if (!analysis || typeof analysis !== "object" || Array.isArray(analysis)) analysis = {};
+        ["compiled_body", "most_supported_version", "headline"].forEach(key => {
+            const nested = parseJsonish(analysis[key]);
+            if (nested && typeof nested === "object" && !Array.isArray(nested)) {
+                analysis = { ...analysis, ...nested };
+            }
+        });
+        return {
+            ...analysis,
+            headline: humanizeValue(analysis.headline),
+            most_supported_version: humanizeValue(analysis.most_supported_version),
+            compiled_body: humanizeValue(analysis.compiled_body),
+            paragraph: humanizeValue(analysis.paragraph),
+            common_facts: normalizeStringList(analysis.common_facts),
+            single_source_claims: normalizeStringList(analysis.single_source_claims),
+            uncertain_claims: normalizeStringList(analysis.uncertain_claims),
+            source_report_focus: normalizeStringList(analysis.source_report_focus),
+            source_notes: normalizeStringList(analysis.source_notes),
+            volatile_elements: normalizeVolatileElements(analysis.volatile_elements),
+        };
+    }
+
+    function withAnalysisFallbacks(cluster, analysis) {
+        const articles = cluster.articles || [];
+        const sources = uniquePublishers(articles);
+        const summary = analysis.compiled_body || analysis.paragraph || analysis.most_supported_version || "";
+
+        if (analysis.common_facts.length === 0) {
+            if (analysis.most_supported_version) {
+                analysis.common_facts = [analysis.most_supported_version];
+            } else if (summary) {
+                analysis.common_facts = [firstSentence(summary)];
+            } else if (articles.length > 0) {
+                analysis.common_facts = [`This cluster groups ${articles.length} article(s) from ${sources.length || cluster.source_count || 0} source(s) around the same reported story.`];
+            }
+        }
+
+        if (analysis.single_source_claims.length === 0) {
+            const sourceCounts = new Map();
+            articles.forEach(article => {
+                const name = article.publisher || article.source || "Unknown";
+                sourceCounts.set(name, (sourceCounts.get(name) || 0) + 1);
+            });
+            analysis.single_source_claims = articles
+                .filter(article => sourceCounts.get(article.publisher || article.source || "Unknown") === 1)
+                .slice(0, 3)
+                .map(article => `${article.publisher || article.source || "Unknown"}: ${article.title}`);
+        }
+
+        if (analysis.uncertain_claims.length === 0) {
+            const volatileReasons = (analysis.volatile_elements || [])
+                .map(item => item.reason)
+                .filter(Boolean);
+            if (volatileReasons.length > 0) {
+                analysis.uncertain_claims = volatileReasons;
+            } else if ((cluster.guardrail_notes || []).length > 0) {
+                analysis.uncertain_claims = cluster.guardrail_notes.slice(0, 3);
+            }
+        }
+
+        if (analysis.source_report_focus.length === 0) {
+            analysis.source_report_focus = representativeArticles(articles)
+                .slice(0, 6)
+                .map(article => `${article.publisher || article.source || "Unknown"}: ${article.title}`);
+        }
+
+        if (analysis.source_notes.length === 0) {
+            analysis.source_notes = analysis.source_report_focus.slice(0, 6);
+        }
+
+        return analysis;
+    }
+
+    function representativeArticles(articles) {
+        const seen = new Set();
+        const reps = [];
+        (articles || []).forEach(article => {
+            const name = article.publisher || article.source || "Unknown";
+            if (!seen.has(name)) {
+                seen.add(name);
+                reps.push(article);
+            }
+        });
+        return reps;
+    }
+
+    function firstSentence(value) {
+        const text = humanizeValue(value);
+        const match = text.match(/^(.+?[.!?])\s/);
+        return match ? match[1] : text;
+    }
+
+    function normalizeCluster(cluster) {
+        const analysis = normalizeAnalysis(cluster.analysis || {});
+        return {
+            ...cluster,
+            analysis: withAnalysisFallbacks(cluster, analysis),
+        };
+    }
+
     // ── Model Dropdown ───────────────────────────────────────────────
     modelPillBtn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -125,7 +361,10 @@ document.addEventListener("DOMContentLoaded", () => {
             modelDropdown.classList.remove("open");
 
             if (provider === "dry-run" || provider === "local" || keysPresent[provider]) {
-                await applyConfig(provider, "", model);
+                const ok = await applyConfig(provider, "", model);
+                if (ok && provider === "local") {
+                    await checkLocalLLMStatus({ silent: false });
+                }
             } else {
                 // Open settings modal pre-filled
                 selectProvider(provider);
@@ -147,7 +386,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Provider card selection inside modal
-    function selectProvider(provider) {
+    function selectProvider(provider, { keepModel = false } = {}) {
         document.querySelectorAll(".provider-card").forEach(card => {
             card.classList.toggle("active", card.dataset.provider === provider);
         });
@@ -157,6 +396,14 @@ document.addEventListener("DOMContentLoaded", () => {
         modelNameSection.style.display = provider !== "dry-run" ? "" : "none";
         if (needsKey) {
             settingsApiKey.placeholder = keysPresent[provider] ? "Key already loaded from .env" : "sk-... or AIza... or nvapi-...";
+        }
+        if (!keepModel) {
+            settingsModelName.value = modelForProvider(provider, settingsModelName.value.trim());
+        } else if (settingsModelName.value.trim() && !modelMatchesProvider(provider, settingsModelName.value.trim())) {
+            settingsModelName.value = defaultModelForProvider(provider);
+        }
+        if (provider === "local") {
+            checkLocalLLMStatus({ silent: true });
         }
     }
 
@@ -169,7 +416,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const providerCards = providerGrid.querySelectorAll(".provider-card.active");
         const provider = providerCards.length ? providerCards[0].dataset.provider : "dry-run";
         const apiKey   = settingsApiKey.value.trim();
-        const model    = settingsModelName.value.trim();
+        const model    = modelForProvider(provider, settingsModelName.value.trim());
+        const configToken = settingsConfigToken ? settingsConfigToken.value.trim() : "";
         const activeCard = providerCards[0];
         const hasEnvKey  = activeCard && activeCard.querySelector(".key-badge");
 
@@ -179,14 +427,22 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         settingsSaveBtn.setAttribute("loading", "");
+        if (configToken) {
+            window.localStorage.setItem("CONFIG_WRITE_TOKEN", configToken);
+        } else {
+            window.localStorage.removeItem("CONFIG_WRITE_TOKEN");
+        }
         const ok = await applyConfig(provider, apiKey, model);
         settingsSaveBtn.removeAttribute("loading");
 
         if (ok) {
             showStatus("success", "✓ Settings saved! AI provider is now active.");
+            if (provider === "local") {
+                await checkLocalLLMStatus({ silent: false });
+            }
             setTimeout(() => settingsModal.hide(), 1200);
         } else {
-            showStatus("error", "Failed to save settings. Check the server.");
+            showStatus("error", lastConfigError || "Failed to save settings. Check the server.");
         }
     });
 
@@ -198,6 +454,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function applyConfig(provider, apiKey, model) {
         try {
+            lastConfigError = "";
             const headers = { "Content-Type": "application/json" };
             const configToken = window.localStorage.getItem("CONFIG_WRITE_TOKEN") || "";
             if (configToken) headers["X-Config-Token"] = configToken;
@@ -214,7 +471,28 @@ document.addEventListener("DOMContentLoaded", () => {
             updateProviderBadge(activeProvider, activeModel);
             markProviderKeys(keysPresent);
             return true;
-        } catch { return false; }
+        } catch (error) {
+            lastConfigError = error.message || "Failed to save settings. Check the server.";
+            return false;
+        }
+    }
+
+    async function checkLocalLLMStatus({ silent = false } = {}) {
+        try {
+            const res = await fetch("/api/local-llm/status");
+            const data = await readApiResponse(res);
+            if (!silent || activeProvider === "local") {
+                const type = data.connected ? "success" : "error";
+                const label = data.connected ? "Local Ollama connected" : "Local Ollama not reachable";
+                showStatus(type, `${label}: ${data.base_url} · ${data.model}`);
+            }
+            return data.connected;
+        } catch (error) {
+            if (!silent) {
+                showStatus("error", error.message || "Could not check Local Ollama status.");
+            }
+            return false;
+        }
     }
 
     function markProviderKeys(keys) {
@@ -240,11 +518,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch("/api/config");
             const cfg = await res.json();
             activeProvider = cfg.provider || "dry-run";
-            activeModel    = cfg.model    || "";
+            activeModel    = modelForProvider(activeProvider, cfg.model || "");
             updateProviderBadge(activeProvider, activeModel);
             // Pre-select correct provider card in modal
-            selectProvider(activeProvider);
-            if (activeModel) settingsModelName.value = activeModel;
+            settingsModelName.value = activeModel;
+            selectProvider(activeProvider, { keepModel: true });
+            if (settingsConfigToken) {
+                settingsConfigToken.value = window.localStorage.getItem("CONFIG_WRITE_TOKEN") || "";
+            }
 
             // Mark provider cards that have keys already in .env with a ✓
             keysPresent = cfg.keys_present || {};
@@ -252,6 +533,9 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch {}
     }
     initConfig();
+    if (settingsConfigToken) {
+        settingsConfigToken.value = window.localStorage.getItem("CONFIG_WRITE_TOKEN") || "";
+    }
 
     // --- Search Submission ---
     searchFormHeader.addEventListener("submit", (e) => {
@@ -275,15 +559,55 @@ document.addEventListener("DOMContentLoaded", () => {
         searchInputHeader.value = "";
         storiesContainer.classList.add("hidden");
         resultsMetaTabs.classList.add("hidden");
+        resultsToolbar.classList.add("hidden");
         errorState.classList.add("hidden");
         modal.hide();
         loadTrendingKeywords();
     });
 
+    function updateLoadingProgress(value, label) {
+        progressValue = Math.max(0, Math.min(100, value));
+        const rounded = Math.round(progressValue);
+        if (loadingProgressBar) loadingProgressBar.style.width = `${rounded}%`;
+        if (loadingPercent) loadingPercent.textContent = `${rounded}%`;
+        if (loadingStage && label) loadingStage.textContent = label;
+    }
+
+    function stageForProgress(value) {
+        if (value < 22) return "Searching NewsAPI, GDELT, Brave, and Google News...";
+        if (value < 48) return "Scraping article pages and extracting metadata...";
+        if (value < 66) return "Clustering articles by story similarity...";
+        if (value < 90) return "Running AI analysis and conflict detection...";
+        if (value < 97) return "Large search still running. Waiting for the server response...";
+        return "Finalizing verification report...";
+    }
+
+    function startLoadingProgress() {
+        clearInterval(progressTimer);
+        updateLoadingProgress(3, "Starting search...");
+        progressTimer = setInterval(() => {
+            const increment = progressValue < 35 ? 4 : progressValue < 70 ? 2 : progressValue < 92 ? 0.75 : 0.2;
+            const next = progressValue + increment;
+            updateLoadingProgress(Math.min(next, 98), stageForProgress(next));
+        }, 650);
+    }
+
+    function finishLoadingProgress() {
+        clearInterval(progressTimer);
+        updateLoadingProgress(100, "Done. Rendering results...");
+    }
+
+    function stopLoadingProgress() {
+        clearInterval(progressTimer);
+        progressTimer = null;
+    }
+
     async function performSearch(query) {
         // Synchronize inputs
         searchInputHero.value = query;
         searchInputHeader.value = query;
+        currentQuery = query;
+        currentWarnings = [];
 
         // Transition states
         appRoot.classList.remove("initial-state");
@@ -294,14 +618,18 @@ document.addEventListener("DOMContentLoaded", () => {
         errorState.classList.add("hidden");
         storiesContainer.classList.add("hidden");
         resultsMetaTabs.classList.add("hidden");
+        resultsToolbar.classList.add("hidden");
         
         leftColumnCards.innerHTML = "";
         centerColumnCards.innerHTML = "";
         rightColumnCards.innerHTML = "";
+        renderWarnings([]);
+        startLoadingProgress();
         
         try {
-            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=10`);
+            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=12&variants=5&max_articles=60&analysis_limit=3&fetch_timeout=12`);
             const data = await readApiResponse(response);
+            finishLoadingProgress();
             
             // Keep the visible model pill in sync with the backend response.
             if (data.provider) {
@@ -310,20 +638,31 @@ document.addEventListener("DOMContentLoaded", () => {
                 updateProviderBadge(activeProvider, activeModel);
             }
             
-            currentClustersData = data.clusters || [];
+            currentClustersData = (data.clusters || []).map(normalizeCluster);
+            currentWarnings = data.warnings || [];
             
             if (currentClustersData.length === 0) {
+                renderResultsSummary(currentClustersData, currentWarnings);
+                renderWarnings(currentWarnings);
                 showEmptyState("No matching stories found.", "Try searching for another topic or simplify your keywords.");
+                if (currentWarnings.length > 0) {
+                    resultsToolbar.classList.remove("hidden");
+                }
             } else {
                 renderClusters(currentClustersData);
+                renderResultsSummary(currentClustersData, currentWarnings);
+                renderWarnings(currentWarnings);
                 applyTabFilter(currentTab);
                 loadingState.classList.add("hidden");
                 storiesContainer.classList.remove("hidden");
                 resultsMetaTabs.classList.remove("hidden");
+                resultsToolbar.classList.remove("hidden");
             }
         } catch (error) {
             console.error("Search failed:", error);
             showEmptyState("An error occurred during search.", error.message || "Please check the server connection and configurations, then try again.");
+        } finally {
+            stopLoadingProgress();
         }
     }
 
@@ -331,11 +670,118 @@ document.addEventListener("DOMContentLoaded", () => {
         loadingState.classList.add("hidden");
         storiesContainer.classList.add("hidden");
         resultsMetaTabs.classList.add("hidden");
+        resultsToolbar.classList.add("hidden");
         errorState.classList.remove("hidden");
         
         errorState.querySelector("h2").textContent = title;
         errorState.querySelector("p").textContent = subtitle;
     }
+
+    function renderWarnings(warnings) {
+        if (!warningsPanel) return;
+        // Filter out low-level fetch extractor errors — users don't need to see these
+        const cleanWarnings = (warnings || [])
+            .filter(Boolean)
+            .filter(w => !w.startsWith("Failed to fetch") && !w.includes("All extractors failed"));
+        if (cleanWarnings.length === 0) {
+            warningsPanel.classList.add("hidden");
+            warningsPanel.innerHTML = "";
+            return;
+        }
+        const visible = cleanWarnings.slice(0, 3);
+        warningsPanel.classList.remove("hidden");
+        warningsPanel.innerHTML = `
+            <div class="warnings-title"><i class="fa-solid fa-circle-info"></i> Partial fetch warnings</div>
+            <ul>
+                ${visible.map(warning => `<li>${escapeHTML(warning)}</li>`).join("")}
+            </ul>
+            ${cleanWarnings.length > visible.length ? `<div class="warnings-more">+${cleanWarnings.length - visible.length} more warning(s)</div>` : ""}
+        `;
+    }
+
+    function renderResultsSummary(clusters, warnings) {
+        if (!resultsSummary) return;
+        const articleCount = (clusters || []).reduce((total, cluster) => total + (cluster.articles || []).length, 0);
+        const sourceNames = new Set();
+        (clusters || []).forEach(cluster => {
+            (cluster.articles || []).forEach(article => sourceNames.add(article.publisher || article.source || "Unknown"));
+        });
+        resultsSummary.innerHTML = `
+            <span><strong>${clusters.length}</strong> story cluster${clusters.length === 1 ? "" : "s"}</span>
+            <span><strong>${articleCount}</strong> article${articleCount === 1 ? "" : "s"}</span>
+            <span><strong>${sourceNames.size}</strong> source${sourceNames.size === 1 ? "" : "s"}</span>
+            <span><strong>${(warnings || []).length}</strong> warning${(warnings || []).length === 1 ? "" : "s"}</span>
+        `;
+    }
+
+    function downloadFile(filename, content, type) {
+        const blob = new Blob([content], { type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    }
+
+    function slugify(value) {
+        return (value || "storycompare-report")
+            .toLowerCase()
+            .replace(/[^a-z0-9가-힣]+/gi, "-")
+            .replace(/^-+|-+$/g, "")
+            .slice(0, 60) || "storycompare-report";
+    }
+
+    function reportMarkdown() {
+        const lines = [`# StoryCompare Report`, "", `Query: ${currentQuery || "Untitled"}`, ""];
+        if (currentWarnings.length) {
+            lines.push("## Partial Fetch Warnings", "");
+            currentWarnings.forEach(warning => lines.push(`- ${warning}`));
+            lines.push("");
+        }
+        currentClustersData.forEach(cluster => {
+            const analysis = cluster.analysis || {};
+            lines.push(`## Story #${cluster.cluster_id}: ${analysis.headline || cluster.articles?.[0]?.title || "Untitled story"}`, "");
+            lines.push(`- Sources: ${cluster.source_count}`);
+            lines.push(`- Trust status: ${cluster.trust_status}`);
+            lines.push(`- Confidence: ${cluster.confidence?.confidence || cluster.confidence?.label || "Unknown"}`);
+            lines.push("");
+
+            appendMarkdownList(lines, "Common Facts", analysis.common_facts);
+            appendMarkdownList(lines, "Conflict / Uncertain Details", (analysis.volatile_elements || []).map(item => {
+                if (typeof item !== "object") return String(item);
+                return `${item.element || "Detail"}: ${item.option_1 || ""} | ${item.option_2 || ""}${item.reason ? ` (${item.reason})` : ""}`;
+            }));
+            appendMarkdownList(lines, "Single Source Information", analysis.single_source_claims);
+            appendMarkdownList(lines, "Uncertain Information", analysis.uncertain_claims);
+            appendMarkdownList(lines, "Source Focus", analysis.source_report_focus);
+            lines.push("### AI Neutral Recap", "", analysis.compiled_body || analysis.paragraph || "No summary generated.", "");
+        });
+        return lines.join("\n");
+    }
+
+    function appendMarkdownList(lines, title, items) {
+        const list = (items || []).filter(Boolean);
+        if (!list.length) return;
+        lines.push(`### ${title}`, "");
+        list.forEach(item => lines.push(`- ${item}`));
+        lines.push("");
+    }
+
+    downloadMdBtn.addEventListener("click", () => {
+        downloadFile(`${slugify(currentQuery)}.md`, reportMarkdown(), "text/markdown;charset=utf-8");
+    });
+
+    downloadJsonBtn.addEventListener("click", () => {
+        const payload = {
+            query: currentQuery,
+            warnings: currentWarnings,
+            clusters: currentClustersData,
+        };
+        downloadFile(`${slugify(currentQuery)}.json`, JSON.stringify(payload, null, 2), "application/json;charset=utf-8");
+    });
 
     // --- Tab Filtering ---
     tabLinks.forEach(tab => {
@@ -398,12 +844,16 @@ document.addEventListener("DOMContentLoaded", () => {
         // Find the first article with a real image URL (not favicon/icon sized ones)
         const validArticle = cluster.articles.find(a => a.image_url && !a.image_url.includes("favicon")) || cluster.articles[0];
         const imageUrl = validArticle ? validArticle.image_url : "";
+        const displayImageUrl = proxiedImageUrl(imageUrl);
         const headline = cluster.analysis.headline || cluster.articles[0].title;
         const sourceCount = cluster.source_count;
         const dist = cluster.trust_distribution;
         const status = cluster.trust_status;
         const volatile = cluster.analysis.volatile_elements || [];
         const conflictCount = volatile.length;
+        const publishers = uniquePublishers(cluster.articles).slice(0, 3);
+        const dateLabel = dateRangeLabel(cluster.articles);
+        const factStatus = clusterFactStatus(cluster);
         const conflictBadgeHTML = conflictCount > 0
             ? `<div class="conflict-strip"><i class="fa-solid fa-triangle-exclamation"></i> ${conflictCount} conflict detail${conflictCount > 1 ? "s" : ""} detected</div>`
             : "";
@@ -418,10 +868,10 @@ document.addEventListener("DOMContentLoaded", () => {
             bsBadgeHTML = `<span class="badge-blindspot right-bs"><i class="fa-solid fa-circle-question"></i> Speculative</span>`;
         }
 
-        const imgHTML = imageUrl
-            ? `<img class="story-card-img" src="${escapeHTML(imageUrl)}" alt="" loading="lazy" onerror="this.style.display='none'; this.parentElement.querySelector('.story-img-fallback').style.display='flex';">`
+        const imgHTML = displayImageUrl
+            ? `<img class="story-card-img" src="${escapeHTML(displayImageUrl)}" alt="" loading="lazy" onerror="this.style.display='none'; this.parentElement.querySelector('.story-img-fallback').style.display='flex';">`
             : "";
-        const fallbackHTML = `<div class="story-img-fallback" style="display:${imageUrl ? 'none' : 'flex'}"><i class="fa-regular fa-image"></i></div>`;
+        const fallbackHTML = `<div class="story-img-fallback" style="display:${displayImageUrl ? 'none' : 'flex'}"><i class="fa-regular fa-image"></i></div>`;
 
         const div = document.createElement("div");
         div.className = "story-card";
@@ -436,6 +886,13 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
             <div class="story-card-content">
                 <h4 class="story-headline">${escapeHTML(headline)}</h4>
+                <div class="story-card-meta">
+                    <span><i class="fa-regular fa-newspaper"></i> ${escapeHTML(publishers.join(", ") || "Unknown source")}</span>
+                    <span><i class="fa-regular fa-calendar"></i> ${escapeHTML(dateLabel)}</span>
+                </div>
+                <div class="fact-status-pill ${factStatus.className}">
+                    <i class="${factStatus.icon}"></i> ${escapeHTML(factStatus.label)}
+                </div>
                 ${conflictBadgeHTML}
                 <div class="mini-bias-metrics">
                     <div class="mini-bias-row">
@@ -459,6 +916,47 @@ document.addEventListener("DOMContentLoaded", () => {
         return div;
     }
 
+    function uniquePublishers(articles) {
+        const seen = new Set();
+        const names = [];
+        (articles || []).forEach(article => {
+            const name = article.publisher || article.source || "Unknown";
+            if (!seen.has(name)) {
+                seen.add(name);
+                names.push(name);
+            }
+        });
+        return names;
+    }
+
+    function dateRangeLabel(articles) {
+        const dates = (articles || [])
+            .map(article => article.date)
+            .filter(Boolean)
+            .sort();
+        if (dates.length === 0) return "Date not confirmed";
+        const first = dates[0];
+        const last = dates[dates.length - 1];
+        return first === last ? first : `${first} to ${last}`;
+    }
+
+    function clusterFactStatus(cluster) {
+        const analysis = cluster.analysis || {};
+        const commonCount = (analysis.common_facts || []).length;
+        const conflictCount = (analysis.volatile_elements || []).length;
+        const singleCount = (analysis.single_source_claims || []).length;
+        if (conflictCount > 0) {
+            return { label: `${conflictCount} conflict item${conflictCount > 1 ? "s" : ""}`, className: "conflict", icon: "fa-solid fa-triangle-exclamation" };
+        }
+        if (commonCount > 0) {
+            return { label: `${commonCount} common fact${commonCount > 1 ? "s" : ""}`, className: "verified", icon: "fa-solid fa-list-check" };
+        }
+        if (singleCount > 0) {
+            return { label: `${singleCount} single-source claim${singleCount > 1 ? "s" : ""}`, className: "single", icon: "fa-solid fa-link" };
+        }
+        return { label: "Needs more corroboration", className: "uncertain", icon: "fa-solid fa-circle-question" };
+    }
+
     // --- Modal Actions ---
     function openDetailsModal(cluster) {
         const headline = cluster.analysis.headline || cluster.articles[0].title;
@@ -476,13 +974,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
         modalSourcesCount.textContent = `${cluster.source_count} sources`;
         modalRecapBody.textContent = recapBody;
+        renderAnalysisList(
+            modalCommonFactsList,
+            cluster.analysis.common_facts,
+            "No common facts were explicitly extracted. Review the recap and source focus."
+        );
+        renderAnalysisList(
+            modalSingleSourceList,
+            cluster.analysis.single_source_claims,
+            "No single-source-only claims were explicitly extracted."
+        );
+        renderAnalysisList(
+            modalUncertainList,
+            cluster.analysis.uncertain_claims,
+            "No additional uncertain information was explicitly extracted."
+        );
+        renderAnalysisList(
+            modalSourceFocusList,
+            cluster.analysis.source_report_focus,
+            "No per-source focus notes were generated."
+        );
 
         // Render Banner Image in Modal
         const validArticle = cluster.articles.find(a => a.image_url && !a.image_url.includes("favicon")) || cluster.articles[0];
         const imageUrl = validArticle ? validArticle.image_url : "";
+        const displayImageUrl = proxiedImageUrl(imageUrl);
         const modalBanner = document.getElementById("modal-banner");
-        if (imageUrl) {
-            modalBanner.innerHTML = `<img src="${escapeHTML(imageUrl)}" alt="" onerror="this.parentElement.classList.add('hidden')" style="width:100%;height:100%;object-fit:cover;display:block;">`;
+        if (displayImageUrl) {
+            modalBanner.innerHTML = `<img class="modal-banner-img" src="${escapeHTML(displayImageUrl)}" alt="" onerror="this.parentElement.classList.add('hidden')">`;
             modalBanner.style.backgroundImage = "";
             modalBanner.classList.remove("hidden");
         } else {
@@ -580,7 +1099,27 @@ document.addEventListener("DOMContentLoaded", () => {
         if (laneRight.children.length === 0) laneRight.innerHTML = '<span class="text-muted" style="font-size:0.75rem;">None</span>';
         if (laneUntracked.children.length === 0) laneUntracked.innerHTML = '<span class="text-muted" style="font-size:0.75rem; margin-top:0.5rem;">None detected</span>';
 
+        syncDetailsModalLayout();
         modal.show();
+        requestAnimationFrame(syncDetailsModalLayout);
+    }
+
+    function renderAnalysisList(target, items, emptyText) {
+        if (!target) return;
+        target.innerHTML = "";
+        const cleanItems = (items || []).filter(Boolean);
+        if (cleanItems.length === 0) {
+            const li = document.createElement("li");
+            li.textContent = emptyText;
+            li.className = "muted-list-item";
+            target.appendChild(li);
+            return;
+        }
+        cleanItems.forEach(item => {
+            const li = document.createElement("li");
+            li.textContent = String(item);
+            target.appendChild(li);
+        });
     }
 
     function createOutletChip(name, bias, url) {
@@ -621,6 +1160,11 @@ document.addEventListener("DOMContentLoaded", () => {
             .replace(/'/g, "&#039;");
     }
 
+    function proxiedImageUrl(url) {
+        if (!url) return "";
+        return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+    }
+
     // Dynamic Datetime update
     function updateTimestamp() {
         const badge = document.getElementById("trending-timestamp");
@@ -653,6 +1197,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch("/api/trending-keywords?num=10");
             const data = await response.json();
             const keywords = data.keywords || [];
+            updateTrendingStatus(data);
             
             chipsContainer.innerHTML = "";
             if (keywords.length === 0) {
@@ -739,10 +1284,37 @@ document.addEventListener("DOMContentLoaded", () => {
             
         } catch (error) {
             console.error("Failed to load trending keywords:", error);
+            updateTrendingStatus({ live: false, source: "unavailable" });
             chipsContainer.innerHTML = '<span class="text-muted" style="font-size:0.8rem;">Failed to load keywords.</span>';
         }
     }
 
+    function updateTrendingStatus(data) {
+        const badge = document.getElementById("trending-source-badge");
+        if (!badge) return;
+        const isLive = Boolean(data.live);
+        const source = data.source || "Google News RSS";
+        const fetchedAt = data.fetched_at ? new Date(data.fetched_at) : null;
+        const timeLabel = fetchedAt && !Number.isNaN(fetchedAt.getTime())
+            ? fetchedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+            : "";
+        badge.textContent = isLive
+            ? `${source} · live${timeLabel ? ` · ${timeLabel}` : ""}`
+            : `${source} · fallback`;
+        badge.classList.toggle("live", isLive);
+        badge.classList.toggle("fallback", !isLive);
+    }
+
     // Start loading trending keywords immediately on load
+    syncDetailsModalLayout();
+    window.addEventListener("resize", syncDetailsModalLayout);
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", syncDetailsModalLayout);
+    }
     loadTrendingKeywords();
+
+    // Refresh trending keywords every 5 minutes (300,000ms) from the server
+    setInterval(() => {
+        loadTrendingKeywords();
+    }, 5 * 60 * 1000);
 });

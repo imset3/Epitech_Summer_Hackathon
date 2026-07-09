@@ -75,7 +75,13 @@ def _fallback_title(path: Path, body: str) -> str:
     return path.stem.replace("_", " ").replace("-", " ").strip().title()
 
 
-def load_articles(folder: Path, sources: list[SourceProfile]) -> list[Article]:
+def load_articles(
+    folder: Path,
+    sources: list[SourceProfile],
+    llm_provider: str | None = None,
+    llm_model: str | None = None,
+    local_base_url: str | None = None,
+) -> list[Article]:
     files = sorted(
         path for path in folder.rglob("*")
         if path.is_file() and path.suffix.lower() in SUPPORTED_EXTENSIONS
@@ -91,7 +97,13 @@ def load_articles(folder: Path, sources: list[SourceProfile]) -> list[Article]:
             path.name,
             "\n".join(raw.splitlines()[:8]),
         ])
-        source = detect_source(hint, sources)
+        source = detect_source(
+            hint,
+            sources,
+            llm_provider=llm_provider,
+            llm_model=llm_model,
+            local_base_url=local_base_url,
+        )
         title = metadata.get("title") or _fallback_title(path, body)
         signals = extract_article_signals(title, body, metadata)
 
@@ -103,7 +115,12 @@ def load_articles(folder: Path, sources: list[SourceProfile]) -> list[Article]:
                 source=source,
                 title=title,
                 body=body,
-                body_en=translate_to_english(body),
+                body_en=translate_to_english(
+                    body,
+                    provider=llm_provider,
+                    model=llm_model,
+                    local_base_url=local_base_url,
+                ),
                 metadata=metadata,
                 signals=signals,
             )

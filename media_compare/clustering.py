@@ -11,7 +11,7 @@ def _cluster_similarity(article: Article, cluster: list[Article]) -> float:
     if not cluster:
         return 0.0
     scores = [
-        article_similarity(article.title, article.body, other.title, other.body)
+        article_similarity(article.title, article.analysis_text, other.title, other.analysis_text)
         for other in cluster
     ]
     return max(scores)
@@ -21,7 +21,7 @@ def _average_pair_similarity(articles: list[Article]) -> float:
     if len(articles) < 2:
         return 1.0
     scores = [
-        article_similarity(a.title, a.body, b.title, b.body)
+        article_similarity(a.title, a.analysis_text, b.title, b.analysis_text)
         for a, b in combinations(articles, 2)
     ]
     return round(sum(scores) / len(scores), 4)
@@ -34,7 +34,7 @@ def _best_neighbor_scores(articles: list[Article]) -> list[float]:
     scores: list[float] = []
     for article in articles:
         best = max(
-            article_similarity(article.title, article.body, other.title, other.body)
+            article_similarity(article.title, article.analysis_text, other.title, other.analysis_text)
             for other in articles
             if other is not article
         )
@@ -69,7 +69,11 @@ def _cluster_score(
     similarity_coverage: float,
     guardrail_score: float,
 ) -> float:
-    weighted_support = sum(a.source.support_weight for a in articles)
+    weighted_support_by_source = {
+        article.source.name: article.source.support_weight
+        for article in articles
+    }
+    weighted_support = sum(weighted_support_by_source.values())
     distinct_sources = len({a.source.name for a in articles})
 
     # Prototype scoring:
@@ -91,7 +95,7 @@ def cluster_articles(articles: list[Article], threshold: float = 0.22) -> list[S
     raw_clusters: list[list[Article]] = []
 
     # Longer texts first gives more stable cluster anchors.
-    for article in sorted(articles, key=lambda a: len(a.body), reverse=True):
+    for article in sorted(articles, key=lambda a: len(a.analysis_text), reverse=True):
         best_index = -1
         best_similarity = 0.0
 

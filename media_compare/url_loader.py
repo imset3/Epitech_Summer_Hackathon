@@ -684,6 +684,10 @@ def fetch_article_from_url(
     sources: list[SourceProfile],
     timeout: int = 20,
     extractor: str = "auto",
+    config_path: Path | None = None,
+    llm_provider: str | None = None,
+    llm_model: str | None = None,
+    local_base_url: str | None = None,
 ) -> Article:
     raw_html, content_type = _fetch_url(url, timeout=timeout)
     if "html" not in content_type.lower() and "xml" not in content_type.lower() and "" != content_type:
@@ -696,7 +700,14 @@ def fetch_article_from_url(
         extracted.title,
         extracted.body[:500],
     ])
-    source = detect_source(hint, sources)
+    source = detect_source(
+        hint,
+        sources,
+        config_path=config_path,
+        llm_provider=llm_provider,
+        llm_model=llm_model,
+        local_base_url=local_base_url,
+    )
     signals = extract_article_signals(extracted.title, extracted.body, extracted.metadata)
     digest = hashlib.sha1(url.encode("utf-8")).hexdigest()[:10]
 
@@ -706,7 +717,12 @@ def fetch_article_from_url(
         source=source,
         title=extracted.title,
         body=extracted.body,
-        body_en=translate_to_english(extracted.body),
+        body_en=translate_to_english(
+            extracted.body,
+            provider=llm_provider,
+            model=llm_model,
+            local_base_url=local_base_url,
+        ) if llm_provider in ("local", "dry-run", None) else extracted.body,
         image_url=extracted.metadata.get("image_url", ""),
         metadata=extracted.metadata,
         signals=signals,
@@ -718,12 +734,25 @@ def load_articles_from_url_file(
     sources: list[SourceProfile],
     timeout: int = 20,
     extractor: str = "auto",
+    config_path: Path | None = None,
+    llm_provider: str | None = None,
+    llm_model: str | None = None,
+    local_base_url: str | None = None,
 ) -> tuple[list[Article], list[str]]:
     articles: list[Article] = []
     errors: list[str] = []
     for url in read_url_list(path):
         try:
-            articles.append(fetch_article_from_url(url, sources, timeout=timeout, extractor=extractor))
+            articles.append(fetch_article_from_url(
+                url,
+                sources,
+                timeout=timeout,
+                extractor=extractor,
+                config_path=config_path,
+                llm_provider=llm_provider,
+                llm_model=llm_model,
+                local_base_url=local_base_url,
+            ))
         except ArticleFetchError as exc:
             errors.append(str(exc))
     return articles, errors

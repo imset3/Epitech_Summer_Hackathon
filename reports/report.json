@@ -1,114 +1,648 @@
 [
   {
-    "cluster_id": 1,
-    "avg_similarity": 0.2427,
-    "avg_best_similarity": 0.3792,
-    "similarity_coverage": 0.75,
+    "cluster_id": 7,
+    "avg_similarity": 0.6875,
+    "avg_best_similarity": 0.7754,
+    "similarity_coverage": 1.0,
     "guardrail_score": 0.9,
     "guardrail_notes": [
       "Date guardrail: primary date signals are close together over 1 day(s).",
-      "Location guardrail: shared location signal(s) Bangkok, Mandalay, China, Myanmar."
+      "Location guardrail: shared location signal(s) Sakurajima, Japan, Kagoshima, Volcanic."
     ],
     "sources": [
+      "Associated Press",
+      "The Standard (Hong Kong)",
       "Independent / Unknown"
     ],
     "articles": [
       {
-        "article_id": "e36c3202c9",
-        "source": "Independent / Unknown",
-        "title": "Myanmar earthquake: at least 144 killed as rescues also continue in Bangkok",
-        "url": "https://www.theguardian.com/world/2025/mar/28/myanmar-earthquake-thailand-magnitude-thailand-tremors-bangkok",
-        "date": "2025-03-28",
+        "article_id": "0d9b772896",
+        "source": "Associated Press",
+        "title": "Sakurajima volcano erupts in southwest Japan, spewing ash up to 4,400 meters",
+        "url": "https://www.aa.com.tr/en/asia-pacific/sakurajima-volcano-erupts-in-southwest-japan-spewing-ash-up-to-4-400-meters/3745012",
+        "date": "2025-11-16",
         "locations": [
-          "Bangkok",
-          "Thai",
-          "Mandalay",
-          "China",
-          "Amarapura",
-          "Myanmar"
+          "Sakurajima",
+          "Japan",
+          "Kagoshima",
+          "Minamidake",
+          "Strait of Hormuz",
+          "Israeli",
+          "Sinabung"
         ],
         "extractor": "fallback-html-parser",
-        "extractor_fallback_reason": "json-ld: JSON-LD did not contain enough article body text | newspaper3k: newspaper3k is not installed",
-        "body_char_count": 7339
+        "extractor_fallback_reason": "json-ld: JSON-LD did not contain enough article body text | newspaper3k: newspaper3k extracted low-quality or polluted article text",
+        "body_char_count": 2322
       },
       {
-        "article_id": "724ae258b9",
-        "source": "Independent / Unknown",
-        "title": "Earthquake death toll in Myanmar, Thailand surpasses 150",
-        "url": "https://www.aljazeera.com/news/2025/3/28/powerful-earthquake-strikes-myanmar",
+        "article_id": "eb503fb76d",
+        "source": "Associated Press",
+        "title": "Video shows Sakurajima volcano erupting in Japan over the weekend",
+        "url": "https://www.usatoday.com/story/news/world/2025/11/17/volcano-in-japan-erupts-over-the-weekend-sending-ash-into-the-sky/87327434007/",
+        "date": "2025-11-17",
+        "locations": [
+          "Video",
+          "Sakurajima",
+          "Japan",
+          "Japan’s Sakurajima"
+        ],
+        "extractor": "newspaper3k",
+        "extractor_fallback_reason": "",
+        "body_char_count": 1435
+      },
+      {
+        "article_id": "ce851e3835",
+        "source": "The Standard (Hong Kong)",
+        "title": "Sakurajima volcano erupts, covers Kagoshima in 'grey rain'",
+        "url": "https://www.thestandard.com.hk/world/article/334024/Sakurajima-volcano-erupts-covers-Kagoshima-in-grey-rain",
         "date": "",
         "locations": [
-          "Myanmar",
-          "Myanmar’s",
-          "Naypyidaw",
-          "Chatuchak Market",
-          "Bangkok",
-          "Aung Ban",
-          "Yunnan and Sichuan",
-          "China",
-          "Ruili",
-          "Yunnan"
+          "Sakurajima",
+          "Kagoshima"
         ],
-        "extractor": "fallback-html-parser",
-        "extractor_fallback_reason": "json-ld: JSON-LD did not contain enough article body text | newspaper3k: newspaper3k is not installed",
-        "body_char_count": 6446
-      },
-      {
-        "article_id": "60346d611e",
-        "source": "Independent / Unknown",
-        "title": "Myanmar earthquake: Death toll rises to 1644, rescue efforts underway",
-        "url": "https://apnews.com/article/myanmar-bangkok-earthquake-0a2bd512bca189d034905566605989e9",
-        "date": "2025-03-29",
-        "locations": [],
-        "extractor": "json-ld",
+        "extractor": "newspaper3k",
         "extractor_fallback_reason": "",
-        "body_char_count": 701
+        "body_char_count": 1052
       },
       {
-        "article_id": "1e0d2906a1",
+        "article_id": "69d330f549",
         "source": "Independent / Unknown",
-        "title": "Violent earthquakes rock Thailand and Myanmar",
-        "url": "https://apnews.com/article/thailand-earthquake-bangkok-4fce87aced74b1fc0cf260fb5454d353",
-        "date": "2025-03-28",
+        "title": "Sakurajima Volcano Volcanic Ash Advisory: EXPLODED AT 20260607/1007Z VA CLD UNKNOWN OBS VA DTG: 07/1010Z",
+        "url": "https://volcanodiscovery.com/sakurajima/news/304411/vaac-advisory-2026-72.html",
+        "date": "",
         "locations": [
-          "Bangkok",
-          "Mandalay"
+          "Sakurajima",
+          "Volcano",
+          "Volcanic",
+          "Ash",
+          "Advisory",
+          "EXPLODED",
+          "CLD",
+          "UNKNOWN",
+          "OBS",
+          "DTG",
+          "Minamidake Crater"
+        ],
+        "extractor": "newspaper3k",
+        "extractor_fallback_reason": "",
+        "body_char_count": 645
+      },
+      {
+        "article_id": "2a68c4d4ce",
+        "source": "Associated Press",
+        "title": "Volcanic activity worldwide 6 Jul 2026: Etna volcano, Santiaguito, Fuego, Semeru, Sheveluch, Ibu, Du...",
+        "url": "https://volcanodiscovery.com/volcano-activity/news/319185/Volcanic-activity-worldwide-6-Jul-2026-Etna-volcano-Santiaguito-Fuego-Semeru-Sheveluch-Ibu-Du.html",
+        "date": "",
+        "locations": [
+          "Volcanic",
+          "Jul",
+          "Etna",
+          "Santiaguito",
+          "Fuego",
+          "Semeru",
+          "Sheveluch",
+          "Ibu",
+          "Sentinel-1",
+          "Voragine"
+        ],
+        "extractor": "newspaper3k",
+        "extractor_fallback_reason": "",
+        "body_char_count": 515
+      },
+      {
+        "article_id": "df0d893613",
+        "source": "Independent / Unknown",
+        "title": "Vos paramètres de confidentialité",
+        "url": "https://www.yahoo.com/news/articles/volcano-eruption-cancels-dozens-flights-111841229.html",
+        "date": "",
+        "locations": [
+          "Vos"
+        ],
+        "extractor": "newspaper3k",
+        "extractor_fallback_reason": "",
+        "body_char_count": 388
+      }
+    ],
+    "analysis": {
+      "cluster_id": 7,
+      "headline": "Story #7",
+      "coherence_rating": 0.6875,
+      "most_supported_version": "",
+      "compiled_body": "A Sakurajima volcano eruption occurred in southwest Japan on November 16, 2025, spewing ash up to 4,400 meters. The eruption caused travel disruptions, with tens of flights canceled due to ashfall. The Japan Meteorological Agency reported the eruption began with small-scale activity around 5 am, followed by a large explosion at 6:52 am. Strong easterly winds carried ash westwards towards central Kagoshima, causing a rare 'grey rain' that coated roads, tram tracks, buildings, and parked vehicles. Local authorities urged residents to wear masks and goggles outdoors and advised car owners to wash their vehicles promptly to prevent paint damage. The eruption was significantly more intense than in previous years, according to a local blogger. The Japan Meteorological Agency observed that the volcano's magma chamber is still pushing, causing continued slight swelling of the mountain. Officials warned that such swelling often precedes a larger-scale eruption. A conflict exists regarding the exact timing and intensity of the eruption, with some sources suggesting multiple eruptions occurred on Sunday, November 16, while others report a single large explosion. More data is needed to confirm the exact details of the eruption.",
+      "volatile_elements": [
+        {
+          "element": "reported detail requiring source comparison",
+          "option_1": "Stable point: the core story is supported by the cluster",
+          "option_2": "Unresolved point: A conflict exists regarding the exact timing and intensity of the eruption, with some sources suggesting multiple eruptions occurred on Sunday, November 16, while others report a single large explosion.",
+          "reason": "The model described a conflict or uncertainty in the synthesis but did not return it as a structured conflict item."
+        }
+      ],
+      "source_notes": []
+    },
+    "confidence": {
+      "score": 90.8,
+      "label": "High",
+      "recommendation": "The recap is well supported by this local corpus. Still verify any volatile details before publishing.",
+      "factors": {
+        "support": 1.0,
+        "source_diversity": 1.0,
+        "article_count": 1.0,
+        "local_coherence": 0.933,
+        "date_location_guardrails": 0.9,
+        "volatile_elements": 1
+      }
+    }
+  },
+  {
+    "cluster_id": 3,
+    "avg_similarity": 0.7843,
+    "avg_best_similarity": 0.8617,
+    "similarity_coverage": 1.0,
+    "guardrail_score": 0.9,
+    "guardrail_notes": [
+      "Date guardrail: primary date signals are close together over 2 day(s).",
+      "Location guardrail: shared location signal(s) Japan, Sakurajima, Volcano, Kagoshima."
+    ],
+    "sources": [
+      "Associated Press"
+    ],
+    "articles": [
+      {
+        "article_id": "2e19743e59",
+        "source": "Associated Press",
+        "title": "Japan Issues Urgent Travel Alert as Sakurajima Volcano Eruption Sends Massive Ash Plumes Into the Sky, Disrupting Air Travel and Local Transportation in Kagoshima Prefecture",
+        "url": "https://www.travelandtourworld.com/news/article/japan-issues-urgent-travel-alert-as-sakurajima-volcano-eruption-sends-massive-ash-plumes-into-the-sky-disrupting-air-travel-and-local-transportation-in-kagoshima-prefecture/",
+        "date": "2026-04-11",
+        "locations": [
+          "Japan",
+          "Issues",
+          "Urgent",
+          "Travel",
+          "Alert",
+          "Sakurajima",
+          "Volcano",
+          "Eruption",
+          "Sends",
+          "Massive",
+          "Ash",
+          "Plumes",
+          "Into",
+          "Sky",
+          "Disrupting",
+          "Air",
+          "Local",
+          "Transportation",
+          "Kagoshima",
+          "Prefecture",
+          "Kagoshima Prefecture",
+          "Japan’s Kagoshima Prefecture",
+          "Kagoshima Airport",
+          "Kagoshima City"
+        ],
+        "extractor": "newspaper3k",
+        "extractor_fallback_reason": "",
+        "body_char_count": 9202
+      },
+      {
+        "article_id": "101d1eb77f",
+        "source": "Associated Press",
+        "title": "Sakurajima eruption disrupts travel in southern Japan - VIDEO",
+        "url": "https://news.az/news/sakurajima-eruption-disrupts-travel-in-southern-japan-video",
+        "date": "2026-04-13",
+        "locations": [
+          "Sakurajima",
+          "Japan",
+          "VIDEO",
+          "Minamidake",
+          "Kagoshima"
+        ],
+        "extractor": "newspaper3k",
+        "extractor_fallback_reason": "",
+        "body_char_count": 1636
+      },
+      {
+        "article_id": "cac9576d13",
+        "source": "Associated Press",
+        "title": "Japan volcano erupts, sending plumes of ash 3.4km high",
+        "url": "https://www.straitstimes.com/asia/east-asia/japan-volcano-erupts-sending-plumes-of-ash-3-4km-high",
+        "date": "2026-04-13",
+        "locations": [
+          "Japan"
+        ],
+        "extractor": "newspaper3k",
+        "extractor_fallback_reason": "",
+        "body_char_count": 652
+      },
+      {
+        "article_id": "56cd8a487e",
+        "source": "Associated Press",
+        "title": "Japan’s Sakurajima Volcano erupted on April 11 and will affect travel over the coming days. - SafeAbroad",
+        "url": "https://safeabroad.com/advisories/japans-sakurajima-volcano-erupted-on-april-11-and-will-affect-travel-over-the-coming-days/",
+        "date": "2026-04-12",
+        "locations": [
+          "Japan’s",
+          "Sakurajima",
+          "Volcano",
+          "SafeAbroad",
+          "Kagoshima"
         ],
         "extractor": "json-ld",
         "extractor_fallback_reason": "",
-        "body_char_count": 571
+        "body_char_count": 441
+      },
+      {
+        "article_id": "14f1d8a663",
+        "source": "Associated Press",
+        "title": "Japan volcano erupts sending plumes of ash kilometres into the sky",
+        "url": "https://www.ctvnews.ca/climate-and-environment/article/japan-volcano-erupts-sending-plumes-of-ash-34-km-high/",
+        "date": "2026-04-13",
+        "locations": [
+          "Japan"
+        ],
+        "extractor": "json-ld",
+        "extractor_fallback_reason": "",
+        "body_char_count": 182
+      }
+    ],
+    "analysis": {
+      "cluster_id": 3,
+      "headline": "Story #3",
+      "coherence_rating": 0.7843,
+      "most_supported_version": "",
+      "compiled_body": "A powerful eruption at the Sakurajima volcano in Japan's Kagoshima Prefecture on April 11, 2026, has caused widespread disruption across the region, prompting urgent travel advisories and safety warnings. The eruption sent massive ash plumes soaring up to 3,400 meters high, forcing the grounding of flights, road closures, and the issuance of safety warnings for nearby residents. With the eruption continuing to affect daily life, travelers and locals are facing immediate disruptions to transport, agriculture, and public safety, prompting swift action from authorities to mitigate the impacts. A conflict exists regarding the year of the previous major eruption, with one source citing 2025 and another source not providing a specific year. The situation remains unpredictable, with officials warning of further activity possible.",
+      "volatile_elements": [
+        {
+          "element": "reported detail requiring source comparison",
+          "option_1": "Stable point: the core story is supported by the cluster",
+          "option_2": "Unresolved point: A conflict exists regarding the year of the previous major eruption, with one source citing 2025 and another source not providing a specific year.",
+          "reason": "The model described a conflict or uncertainty in the synthesis but did not return it as a structured conflict item."
+        }
+      ],
+      "source_notes": []
+    },
+    "confidence": {
+      "score": 66.1,
+      "label": "Medium",
+      "recommendation": "Use the recap as a working version, but search for more data before treating it as settled.",
+      "factors": {
+        "support": 1.0,
+        "source_diversity": 0.333,
+        "article_count": 1.0,
+        "local_coherence": 0.959,
+        "date_location_guardrails": 0.9,
+        "volatile_elements": 1
+      }
+    }
+  },
+  {
+    "cluster_id": 5,
+    "avg_similarity": 0.6439,
+    "avg_best_similarity": 0.7416,
+    "similarity_coverage": 1.0,
+    "guardrail_score": 0.6,
+    "guardrail_notes": [
+      "Date guardrail warning: primary date signals span 28 day(s); timing may describe different phases or events.",
+      "Location guardrail: shared location signal(s) Japan, Japan's, Volcano, Eruption, Travel."
+    ],
+    "sources": [
+      "Associated Press"
+    ],
+    "articles": [
+      {
+        "article_id": "266f70ca53",
+        "source": "Associated Press",
+        "title": "Floating volcanic rock is disrupting life in Papua New Guinea – and the problem will last a long time",
+        "url": "https://theconversation.com/floating-volcanic-rock-is-disrupting-life-in-papua-new-guinea-and-the-problem-will-last-a-long-time-285155",
+        "date": "2026-06-16",
+        "locations": [
+          "Floating",
+          "Papua",
+          "Guinea",
+          "Bismarck Sea",
+          "Manus Province",
+          "Okinawa Prefecture",
+          "Japan",
+          "Manus",
+          "Pacific"
+        ],
+        "extractor": "newspaper3k",
+        "extractor_fallback_reason": "",
+        "body_char_count": 5637
+      },
+      {
+        "article_id": "6a80f7e1bb",
+        "source": "Associated Press",
+        "title": "Record-breaking ocean drilling reveals why Japan's 2011 tsunami was so deadly",
+        "url": "https://sciencedaily.com/releases/2026/06/260625060220.htm",
+        "date": "2026-06-26",
+        "locations": [
+          "Record-breaking",
+          "Japan's",
+          "Northern Arizona University's School",
+          "Science",
+          "Pacific Northwest",
+          "Cornell University's Department of Earth",
+          "Japan",
+          "Japan and Alaska"
+        ],
+        "extractor": "newspaper3k",
+        "extractor_fallback_reason": "",
+        "body_char_count": 4272
+      },
+      {
+        "article_id": "5f59a8cfa7",
+        "source": "Associated Press",
+        "title": "Sakurajima Volcano Eruption June 2026: Massive Ashfall Paralyzes Kagoshima Tourism and Travel",
+        "url": "https://nomadlawyer.org/sakurajima-volcano-eruption-kagoshima-ashfall-tourism-disruption-june-2026",
+        "date": "2026-06-07",
+        "locations": [
+          "Sakurajima",
+          "Volcano",
+          "Eruption",
+          "Massive",
+          "Ashfall",
+          "Paralyzes",
+          "Kagoshima",
+          "Tourism",
+          "Travel",
+          "Japan's"
+        ],
+        "extractor": "json-ld",
+        "extractor_fallback_reason": "",
+        "body_char_count": 215
+      },
+      {
+        "article_id": "cd158786e2",
+        "source": "Associated Press",
+        "title": "Mayon Volcano 183-Day Eruption Triggers Philippines Travel Shock: Japan, US, South Korea, Australia Hit",
+        "url": "https://www.nomadlawyer.org/mayon-volcano-eruption-philippines-travel-shock-japan-us-korea-australia-2026",
+        "date": "2026-07-05",
+        "locations": [
+          "Mayon",
+          "Volcano",
+          "Day",
+          "Eruption",
+          "Triggers",
+          "Philippines",
+          "Travel",
+          "Shock",
+          "Japan",
+          "South",
+          "Korea",
+          "Australia",
+          "Hit",
+          "Bicol and Luzon"
+        ],
+        "extractor": "json-ld",
+        "extractor_fallback_reason": "",
+        "body_char_count": 202
+      }
+    ],
+    "analysis": {
+      "cluster_id": 5,
+      "headline": "Story #5",
+      "coherence_rating": 0.6439,
+      "most_supported_version": "",
+      "compiled_body": "A series of volcanic eruptions and natural disasters have affected various regions in 2026. In Papua New Guinea, floating volcanic rock from the ongoing Titan Ridge eruption is disrupting life in coastal communities, blocking access to fishing grounds and daily life. The eruption has produced vast amounts of pumice, a lightweight, porous volcanic rock that floats on the ocean surface. Residents in Manus Province have reported being able to walk where there was previously open water. The disruption is expected to persist for months or even years, affecting food security and livelihoods in communities that depend directly on the ocean. Meanwhile, in Japan, a Sakurajima volcano eruption on June 7, 2026, caused massive ashfall, paralyzing Kagoshima tourism and travel. Additionally, the Mayon Volcano in the Philippines has been erupting for 183 days in 2026, triggering massive travel disruptions and tour cancellations for tourists from Japan, the US, South Korea, and Australia.",
+      "volatile_elements": [],
+      "source_notes": [],
+      "uncertainty": "The location and duration of the volcanic eruptions and natural disasters are not explicitly stated in all articles, and the impact on food security and livelihoods is not clearly defined. Additionally, the articles do not provide a clear timeline for the events, making it difficult to determine the exact sequence of events."
+    },
+    "confidence": {
+      "score": 66.7,
+      "label": "Medium",
+      "recommendation": "Use the recap as a working version, but search for more data before treating it as settled.",
+      "factors": {
+        "support": 1.0,
+        "source_diversity": 0.333,
+        "article_count": 1.0,
+        "local_coherence": 0.922,
+        "date_location_guardrails": 0.6,
+        "volatile_elements": 0
+      }
+    }
+  },
+  {
+    "cluster_id": 8,
+    "avg_similarity": 0.8259,
+    "avg_best_similarity": 0.8687,
+    "similarity_coverage": 1.0,
+    "guardrail_score": 0.9,
+    "guardrail_notes": [
+      "Date guardrail: primary date signals are close together over 1 day(s).",
+      "Location guardrail: shared location signal(s) Japan's, Sakurajima, Volcano, Erupts, Sending and 4 more."
+    ],
+    "sources": [
+      "Associated Press"
+    ],
+    "articles": [
+      {
+        "article_id": "4ba90f7e7a",
+        "source": "Associated Press",
+        "title": "Watch: Japan's Sakurajima Volcano Erupts, Sending Ash Plume 3,000 Metres Into The Sky",
+        "url": "https://www.ndtv.com/world-news/watch-japans-sakurajima-volcano-erupts-sending-ash-plume-3-000-metres-into-the-sky-8423241",
+        "date": "2025-05-15",
+        "locations": [
+          "Watch",
+          "Japan's",
+          "Sakurajima",
+          "Volcano",
+          "Erupts",
+          "Sending",
+          "Ash",
+          "Plume",
+          "Metres",
+          "Into",
+          "Sky",
+          "Japan"
+        ],
+        "extractor": "",
+        "extractor_fallback_reason": "",
+        "body_char_count": 172
+      },
+      {
+        "article_id": "e403aff9de",
+        "source": "Associated Press",
+        "title": "Japan’s Sakurajima Volcano Erupts, Sending Ash Plume Eleven Thousand Four Hundred Eighty-Three Feet into the Sky, Triggering Urgent Safety Warnings and Travel Alerts for Tourists - Travel And Tour World",
+        "url": "https://www.travelandtourworld.com/news/article/japans-sakurajima-volcano-erupts-sending-ash-plume-eleven-thousand-four-hundred-eighty-three-feet-into-the-sky-triggering-urgent-safety-warnings-and-travel-alerts-for-tourists/",
+        "date": "",
+        "locations": [
+          "Japan’s",
+          "Sakurajima",
+          "Volcano",
+          "Erupts",
+          "Sending",
+          "Ash",
+          "Plume",
+          "Eleven",
+          "Thousand",
+          "Four",
+          "Hundred",
+          "Eighty-Three",
+          "Feet",
+          "Sky",
+          "Triggering",
+          "Urgent",
+          "Safety",
+          "Warnings",
+          "Travel",
+          "Alerts",
+          "Tourists",
+          "Tour",
+          "World",
+          "Japan"
+        ],
+        "extractor": "",
+        "extractor_fallback_reason": "",
+        "body_char_count": 165
+      },
+      {
+        "article_id": "80b2068ea8",
+        "source": "Associated Press",
+        "title": "Japan's Sakurajima volcano eruption shoots 2-mile-high ash plume into sky",
+        "url": "https://uk.news.yahoo.com/japans-sakurajima-volcano-eruption-shoots-200000790.html",
+        "date": "2025-05-16",
+        "locations": [
+          "Japan's",
+          "Sakurajima",
+          "Kagoshima"
+        ],
+        "extractor": "json-ld",
+        "extractor_fallback_reason": "",
+        "body_char_count": 160
+      }
+    ],
+    "analysis": {
+      "cluster_id": 8,
+      "headline": "Story #8",
+      "coherence_rating": 0.8259,
+      "most_supported_version": "",
+      "compiled_body": "A volcanic eruption occurred at Japan's Sakurajima volcano on May 15, 2025, with authorities closely monitoring the situation. The eruption sent a significant ash plume into the air, with varying reports of its height. A conflict exists regarding the exact height of the ash plume, with one source stating it reached 3,000 meters and another source claiming it reached 11,483 feet. The location of the eruption is confirmed to be Japan's Sakurajima volcano, with the city of Kagoshima also mentioned as a nearby location. The exact timing of the eruption is confirmed to be May 15, 2025, with a possible second eruption occurring on May 16, 2025. The consequences of the eruption are not fully clear, but authorities have issued safety warnings and travel alerts for nearby areas.",
+      "volatile_elements": [
+        {
+          "element": "reported detail requiring source comparison",
+          "option_1": "Stable point: the core story is supported by the cluster",
+          "option_2": "Unresolved point: A conflict exists regarding the exact height of the ash plume, with one source stating it reached 3,000 meters and another source claiming it reached 11,483 feet.",
+          "reason": "The model described a conflict or uncertainty in the synthesis but did not return it as a structured conflict item."
+        }
+      ],
+      "source_notes": [],
+      "uncertainty": "The exact height of the ash plume and the exact timing of the eruption are disputed among sources."
+    },
+    "confidence": {
+      "score": 60.8,
+      "label": "Medium",
+      "recommendation": "Use the recap as a working version, but search for more data before treating it as settled.",
+      "factors": {
+        "support": 0.934,
+        "source_diversity": 0.333,
+        "article_count": 0.75,
+        "local_coherence": 0.961,
+        "date_location_guardrails": 0.9,
+        "volatile_elements": 1
+      }
+    }
+  },
+  {
+    "cluster_id": 1,
+    "avg_similarity": 0.6875,
+    "avg_best_similarity": 0.7129,
+    "similarity_coverage": 1.0,
+    "guardrail_score": 0.9,
+    "guardrail_notes": [
+      "Date guardrail: primary date signals are close together over 20 day(s).",
+      "Location guardrail: shared location signal(s) Fuji, Japan."
+    ],
+    "sources": [
+      "Associated Press"
+    ],
+    "articles": [
+      {
+        "article_id": "a03e037a59",
+        "source": "Associated Press",
+        "title": "Mt Fuji Eruption Risk 2026: Last 1707 — Is It Safe Now?",
+        "url": "https://samuraicarjapanjdm.jp/mt-fuji-eruption-history-risk-travelers-guide/",
+        "date": "2026-03-06",
+        "locations": [
+          "Fuji",
+          "Eruption",
+          "Risk",
+          "Last",
+          "Safe",
+          "Now",
+          "Japanese",
+          "Japan",
+          "Recorded History",
+          "Mt Fuji's",
+          "Kantō",
+          "Volcanic Alert Level"
+        ],
+        "extractor": "newspaper3k",
+        "extractor_fallback_reason": "",
+        "body_char_count": 22778
+      },
+      {
+        "article_id": "d41a6a560a",
+        "source": "Associated Press",
+        "title": "INSIGHT: Japan begins study to protect foreign tourists if Mt. Fuji erupts",
+        "url": "https://english.kyodonews.net/articles/-/79339",
+        "date": "",
+        "locations": [
+          "INSIGHT",
+          "Japan",
+          "Fuji",
+          "Tokyo",
+          "Japan's",
+          "Yamanashi's"
+        ],
+        "extractor": "newspaper3k",
+        "extractor_fallback_reason": "",
+        "body_char_count": 3691
+      },
+      {
+        "article_id": "8343ddbf93",
+        "source": "Associated Press",
+        "title": "One of Earth’s most explosive supervolcanoes is recharging",
+        "url": "https://www.sciencedaily.com/releases/2026/03/260329222930.htm",
+        "date": "2026-03-26",
+        "locations": [
+          "One",
+          "Earth’s",
+          "United States",
+          "Indonesia",
+          "Japan",
+          "Communications Earth & Environment"
+        ],
+        "extractor": "newspaper3k",
+        "extractor_fallback_reason": "",
+        "body_char_count": 3645
       }
     ],
     "analysis": {
       "cluster_id": 1,
-      "headline": "Myanmar earthquake: at least 144 killed as rescues also continue in Bangkok",
-      "coherence_rating": 0.2427,
-      "most_supported_version": "Dry run: this cluster is reported by Independent / Unknown with weighted support 1.88.",
-      "compiled_body": "Myanmar earthquake: at least 144 killed as rescues also continue in Bangkok: (25%) 144 dead | (25%) 730 injured. Myanmar earthquake: at least 144 killed as rescues also continue in Bangkok Junta makes rare call for aid as hundreds injured by 7.7-magnitude quake, which also brought down high-rise in Thai capital At least 144 people have died and 732 have been injured after a powerful earthquake struck Myanmar, killing at least nine more in neighbouring Thailand where a high-rise building under construction in Bangkok collapsed. The 7.7-magnitude earthquake hit central Myanmar at 12.50pm local time on Friday at a depth of 10km (6.2 miles). Its epicentre was about 11 miles (17.2km) from Mandalay, Myanmar’s second-largest city. Bangkok skyscraper collapses after Myanmar earthquakes A powerful earthquake has hit Myanmar and neighbouring Thailand, destroying buildings, damaging infrastructure and killing more than 150 people. The head of Myanmar’s military government, Senior General Min Aung Hlaing, said that at least 144 people were killed and 730 others were injured in his country. This dry-run recap is based on 4 article extract(s), reported by Independent / Unknown, with weighted support 1.88 and average pair similarity 0.24.",
+      "headline": "Story #1",
+      "coherence_rating": 0.6875,
+      "most_supported_version": "",
+      "compiled_body": "Mt Fuji, Japan's tallest peak, is an active stratovolcano that has erupted numerous times throughout recorded history. The risk of eruption may not be imminent, but the Japanese government and private companies are working together to prepare for a potential disaster. A study group was launched to evacuate foreign tourists to safe locations in the event of a Mt Fuji eruption or a major earthquake. The group is considering transporting tourists by bus and other means to unaffected prefectures for temporary stays, while also envisioning coordination with embassies for repatriation. Although no eruptions have been observed at Mt Fuji for over 300 years, low-frequency earthquakes have occurred frequently since around the year 2000. The last eruption with reliable records was in 1707, when volcanic ash accumulated to about 4 centimeters near what is now central Tokyo. A recent study found that the magma reservoir tied to the largest volcanic eruption of the Holocene is filling again, offering new insight into how massive caldera systems evolve over time and may help improve future eruption forecasting. However, a conflict exists regarding the current volcanic risk assessment and the likelihood of a future eruption.",
       "volatile_elements": [
         {
-          "element": "casualty count",
-          "option_1": "(25%) 144 dead",
-          "option_2": "(25%) 730 injured",
-          "reason": "Different casualty claims appear in Independent / Unknown and Independent / Unknown."
+          "element": "reported detail requiring source comparison",
+          "option_1": "Stable point: the core story is supported by the cluster",
+          "option_2": "Unresolved point: However, a conflict exists regarding the current volcanic risk assessment and the likelihood of a future eruption.",
+          "reason": "The model described a conflict or uncertainty in the synthesis but did not return it as a structured conflict item."
         }
       ],
-      "source_notes": [
-        "Independent / Unknown: Myanmar earthquake: at least 144 killed as rescues also continue in Bangkok",
-        "Independent / Unknown: Earthquake death toll in Myanmar, Thailand surpasses 150",
-        "Independent / Unknown: Myanmar earthquake: Death toll rises to 1644, rescue efforts underway",
-        "Independent / Unknown: Violent earthquakes rock Thailand and Myanmar"
-      ]
+      "source_notes": []
     },
     "confidence": {
-      "score": 48.8,
-      "label": "Low",
-      "recommendation": "Treat the recap as a lead only. Search for more independent sources before relying on it.",
+      "score": 59.6,
+      "label": "Medium",
+      "recommendation": "Use the recap as a working version, but search for more data before treating it as settled.",
       "factors": {
-        "support": 0.627,
+        "support": 0.934,
         "source_diversity": 0.333,
-        "article_count": 1.0,
-        "local_coherence": 0.639,
+        "article_count": 0.75,
+        "local_coherence": 0.914,
         "date_location_guardrails": 0.9,
         "volatile_elements": 1
       }
@@ -121,44 +655,155 @@
     "similarity_coverage": 0.0,
     "guardrail_score": 0.9,
     "guardrail_notes": [
-      "Date guardrail: shared primary date signal 2016-08-24.",
-      "Location guardrail: location signal found: Bangkok, Indian, Bangladesh, Bagan, Myanmar’s Magway, Japan, Myanmar, Pakoku."
+      "Date guardrail: shared primary date signal 2026-07-03.",
+      "Location guardrail: location signal found: Hōei, Mount, Fuji, Japanese."
+    ],
+    "sources": [
+      "Associated Press"
+    ],
+    "articles": [
+      {
+        "article_id": "353b1153cb",
+        "source": "Associated Press",
+        "title": "The Hōei eruption: The last time Mount Fuji exploded",
+        "url": "https://worldpolitics.substack.com/p/hoei-eruption-mount-fuji-japan-volcano-earthquake",
+        "date": "2026-07-03",
+        "locations": [
+          "Hōei",
+          "Mount",
+          "Fuji",
+          "Japanese"
+        ],
+        "extractor": "newspaper3k",
+        "extractor_fallback_reason": "",
+        "body_char_count": 12521
+      }
+    ],
+    "analysis": {
+      "cluster_id": 2,
+      "headline": "",
+      "coherence_rating": 1.0,
+      "most_supported_version": "",
+      "compiled_body": "",
+      "volatile_elements": [],
+      "source_notes": []
+    },
+    "confidence": {
+      "score": 11.7,
+      "label": "Low",
+      "recommendation": "Treat the recap as a lead only. Search for more independent sources before relying on it.",
+      "factors": {
+        "support": 0.311,
+        "source_diversity": 0.333,
+        "article_count": 0.25,
+        "local_coherence": 0.0,
+        "date_location_guardrails": 0.9,
+        "volatile_elements": 0
+      }
+    }
+  },
+  {
+    "cluster_id": 6,
+    "avg_similarity": 1.0,
+    "avg_best_similarity": 0.0,
+    "similarity_coverage": 0.0,
+    "guardrail_score": 0.9,
+    "guardrail_notes": [
+      "Date guardrail: shared primary date signal 2026-05-08.",
+      "Location guardrail: location signal found: On-The-Ground, Images, Two, Powerful, Volcanic, Eruptions, Asia, Japan, Indonesia, Kagoshima Prefecture, Kyushu, Pacific."
+    ],
+    "sources": [
+      "Associated Press"
+    ],
+    "articles": [
+      {
+        "article_id": "e8e2822b84",
+        "source": "Associated Press",
+        "title": "On-The-Ground Images of Two Powerful Volcanic Eruptions Today",
+        "url": "https://petapixel.com/2026/05/08/on-the-ground-images-of-two-powerful-volcanic-eruptions-today/",
+        "date": "2026-05-08",
+        "locations": [
+          "On-The-Ground",
+          "Images",
+          "Two",
+          "Powerful",
+          "Volcanic",
+          "Eruptions",
+          "Asia",
+          "Japan",
+          "Indonesia",
+          "Kagoshima Prefecture",
+          "Kyushu",
+          "Pacific"
+        ],
+        "extractor": "newspaper3k",
+        "extractor_fallback_reason": "",
+        "body_char_count": 2783
+      }
+    ],
+    "analysis": {
+      "cluster_id": 6,
+      "headline": "",
+      "coherence_rating": 1.0,
+      "most_supported_version": "",
+      "compiled_body": "",
+      "volatile_elements": [],
+      "source_notes": []
+    },
+    "confidence": {
+      "score": 11.7,
+      "label": "Low",
+      "recommendation": "Treat the recap as a lead only. Search for more independent sources before relying on it.",
+      "factors": {
+        "support": 0.311,
+        "source_diversity": 0.333,
+        "article_count": 0.25,
+        "local_coherence": 0.0,
+        "date_location_guardrails": 0.9,
+        "volatile_elements": 0
+      }
+    }
+  },
+  {
+    "cluster_id": 4,
+    "avg_similarity": 1.0,
+    "avg_best_similarity": 0.0,
+    "similarity_coverage": 0.0,
+    "guardrail_score": 0.9,
+    "guardrail_notes": [
+      "Date guardrail: shared primary date signal 2026-03-26.",
+      "Location guardrail: location signal found: Scientists, Nature Communications, Institut de Physique du Globe de Paris, Potsdam, Piton."
     ],
     "sources": [
       "Independent / Unknown"
     ],
     "articles": [
       {
-        "article_id": "8fc8f8c47c",
+        "article_id": "13163c3aba",
         "source": "Independent / Unknown",
-        "title": "Myanmar struck by 6.8-magnitude earthquake",
-        "url": "https://www.theguardian.com/world/2016/aug/24/myanmar-struck-by-6-8-magnitude-earthquake",
-        "date": "2016-08-24",
+        "title": "Scientists just discovered a tiny signal that volcanoes send before they erupt",
+        "url": "http://www.sciencedaily.com/releases/2026/03/260315004411.htm",
+        "date": "2026-03-26",
         "locations": [
-          "Bangkok",
-          "Indian",
-          "Bangladesh",
-          "Bagan",
-          "Myanmar’s Magway",
-          "Japan",
-          "Myanmar",
-          "Pakoku"
+          "Scientists",
+          "Nature Communications",
+          "Institut de Physique du Globe de Paris",
+          "Potsdam",
+          "Piton"
         ],
-        "extractor": "fallback-html-parser",
-        "extractor_fallback_reason": "json-ld: JSON-LD did not contain enough article body text | newspaper3k: newspaper3k is not installed",
-        "body_char_count": 3239
+        "extractor": "newspaper3k",
+        "extractor_fallback_reason": "",
+        "body_char_count": 7333
       }
     ],
     "analysis": {
-      "cluster_id": 2,
-      "headline": "Myanmar struck by 6.8-magnitude earthquake",
+      "cluster_id": 4,
+      "headline": "",
       "coherence_rating": 1.0,
-      "most_supported_version": "Dry run: this cluster is reported by Independent / Unknown with weighted support 0.47.",
-      "compiled_body": "Myanmar struck by 6.8-magnitude earthquake. Myanmar struck by 6.8-magnitude earthquake US Geological Survey reports powerful quake in north-central Myanmar, damaging temples in the ancient city of Bagan A powerful 6.8-magnitude earthquake has hit central Myanmar , the US Geological Survey has said, severely damaging ancient temples at the old city of Bagan and killing one person. The site, which is often compared to Cambodia’s Angkor Wat, holds more than 2,500 temples and pagodas, some of them centuries old. The earthquake was so intense that it was felt in Bangkok, about 620 miles (1,000km) away. This dry-run recap is based on 1 article extract(s), reported by Independent / Unknown, with weighted support 0.47 and average pair similarity 1.00.",
+      "most_supported_version": "",
+      "compiled_body": "",
       "volatile_elements": [],
-      "source_notes": [
-        "Independent / Unknown: Myanmar struck by 6.8-magnitude earthquake"
-      ]
+      "source_notes": []
     },
     "confidence": {
       "score": 7.8,

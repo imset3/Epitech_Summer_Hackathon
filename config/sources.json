@@ -269,6 +269,654 @@
       "reach": 0.75,
       "bias": "center",
       "notes": "FOX Sports is generally considered a center-leaning source for sports news and analysis, with factual reporting on events."
+    },
+    {
+      "name": "The Atlantic",
+      "aliases": [
+        "theatlantic.com",
+        "www.theatlantic.com",
+        "the atlantic"
+      ],
+      "trust": 0.95,
+      "reach": 0.8,
+      "bias": "left-center",
+      "notes": "The Atlantic is a highly credible American magazine known for high factual reporting and a left-center bias."
+    },
+    {
+      "name": "Foreign Policy",
+      "aliases": [
+        "foreignpolicy.com",
+        "www.foreignpolicy.com",
+        "foreign policy"
+      ],
+      "trust": 0.75,
+      "reach": 0.35,
+      "bias": "left-center",
+      "notes": "Foreign Policy is a reliable source for in-depth analysis of global affairs, though some sources note a left-leaning bias and mixed factual reporting."
+    },
+    {
+      "name": "Yahoo News",
+      "aliases": [
+        "yahoo.com",
+        "www.yahoo.com",
+        "yahoo news"
+      ],
+      "trust": 0.8,
+      "reach": 0.85,
+      "bias": "left-center",
+      "notes": "Yahoo News is a widely recognized platform rated high for factual reporting on its original content, though some sources indicate an average overall reliability, and it exhibits a left-center bias."
+    },
+    {
+      "name": "Google News",
+      "aliases": [
+        "news.google.com",
+        "www.news.google.com",
+        "google news"
+      ],
+      "trust": 0.75,
+      "reach": 0.95,
+      "bias": "left-center",
+      "notes": "Google News is a generally trustworthy news aggregator that exhibits a strong left-center bias in its selection of sources, often requiring further investigation of individual articles."
+    },
+    {
+      "name": "American Thinker",
+      "aliases": [
+        "americanthinker.com",
+        "www.americanthinker.com",
+        "american thinker"
+      ],
+      "trust": 0.3,
+      "reach": 0.5,
+      "bias": "right",
+      "notes": "American Thinker has a history of promoting conspiracy theories and propaganda, with a low credibility rating and a bias score indicating a strong right-wing lean."
+    },
+    {
+      "name": "dw.com",
+      "aliases": [
+        "dw.com",
+        "www.dw.com",
+        "dw.com"
+      ],
+      "trust": 0.95,
+      "reach": 0.8,
+      "bias": "left-center",
+      "notes": "Deutsche Welle is a highly factual and reliable source with a slight left-center bias."
+    },
+    {
+      "name": "Deutsche Welle (DW)",
+      "aliases": [
+        "dw.com",
+        "www.dw.com",
+        "deutsche welle (dw)"
+      ],
+      "trust": 0.95,
+      "reach": 0.8,
+      "bias": "left-center",
+      "notes": "Deutsche Welle is a highly factual and reliable news source with a left-center bias, but with some initial confidence issues."
+    },
+    {
+      "name": "Sputnik Globe",
+      "aliases": [
+        "sputnikglobe.com",
+        "www.sputnikglobe.com",
+        "sputnik globe"
+      ],
+      "trust": 0.2,
+      "reach": 0.4,
+      "bias": "right",
+      "notes": "Sputnik Globe is a Russian government-backed news agency with a history of promoting conspiracies and pro-Russian propaganda, making its reporting highly questionable and requiring caution."
+    },
+    {
+      "name": "CounterPunch",
+      "aliases": [
+        "counterpunch.org",
+        "www.counterpunch.org",
+        "counterpunch"
+      ],
+      "trust": 0.85,
+      "reach": 0.4,
+      "bias": "left",
+      "notes": "CounterPunch is a left-wing magazine with high credibility and mostly factual reporting, but with a mixed factuality rating."
+    },
+    {
+      "name": "hitc.com",
+      "aliases": [
+        "hitc.com",
+        "www.hitc.com",
+        "hitc.com"
+      ],
+      "trust": 0.85,
+      "reach": 0.8,
+      "bias": "left-center",
+      "notes": "HITC is a mainstream news site with high factual reporting and a large audience, with a slight left-center bias."
+    },
+    {
+      "name": "theconversation.com",
+      "aliases": [
+        "theconversation.com",
+        "www.theconversation.com",
+        "theconversation.com"
+      ],
+      "trust": 0.95,
+      "reach": 0.8,
+      "bias": "left-center",
+      "notes": "The Conversation is a highly factual and credible Australian media outlet with a left-center bias, offering high-quality articles from academics and journalists."
+    },
+    {
+      "name": "FARK.com",
+      "aliases": [
+        "fark.com",
+        "www.fark.com",
+        "fark.com"
+      ],
+      "trust": 0.6,
+      "reach": 0.8,
+      "bias": "left-center",
+      "notes": "FARK.com is a left-leaning satire website with high traffic and a MOSTLY FREE country freedom rank."
+    },
+    {
+      "name": "businessinsider.com",
+      "aliases": [
+        "businessinsider.com",
+        "www.businessinsider.com",
+        "businessinsider.com"
+      ],
+      "trust": 0.8,
+      "reach": 0.6,
+      "bias": "center",
+      "notes": "Generally trustworthy, but may require further investigation due to potential biases and stereotypes."
+    },
+    {
+      "name": "n.yam.com",
+      "aliases": [
+        "n.yam.com",
+        "www.n.yam.com",
+        "n.yam.com"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "untracked",
+      "notes": "Unable to determine factual reporting reliability and political bias; may be a small or new publication."
+    },
+    {
+      "name": "techtimes.com",
+      "aliases": [
+        "techtimes.com",
+        "www.techtimes.com",
+        "techtimes.com"
+      ],
+      "trust": 0.75,
+      "reach": 0.55,
+      "bias": "left-center",
+      "notes": "Tech Times has a center bias with fact-based reporting, leaning slightly left in some editorial perspectives."
+    },
+    {
+      "name": "Politico",
+      "aliases": [
+        "politico.com",
+        "www.politico.com",
+        "politico"
+      ],
+      "trust": 0.85,
+      "reach": 0.8,
+      "bias": "left-center",
+      "notes": "Politico is a reputable news source with a slight left-center bias, known for its high factual reporting and large audience reach."
+    },
+    {
+      "name": "foxnews.com",
+      "aliases": [
+        "foxnews.com",
+        "www.foxnews.com",
+        "foxnews.com"
+      ],
+      "trust": 0.38,
+      "reach": 0.8,
+      "bias": "right",
+      "notes": "Fox News has a history of promoting conspiracy theories, pseudoscience, and state propaganda, with a low credibility rating and a right-leaning bias."
+    },
+    {
+      "name": "jenesaispop.com",
+      "aliases": [
+        "jenesaispop.com",
+        "www.jenesaispop.com",
+        "jenesaispop.com"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "untracked",
+      "notes": "No specific information found about jenesaispop.com's factual reporting reliability, reach, or political bias; defaulting to general assumptions."
+    },
+    {
+      "name": "united24media.com",
+      "aliases": [
+        "united24media.com",
+        "www.united24media.com",
+        "united24media.com"
+      ],
+      "trust": 0.8,
+      "reach": 0.6,
+      "bias": "left-center",
+      "notes": "United24 Media has a strong left-center bias, but references high-integrity sources and does not fabricate or misreport information."
+    },
+    {
+      "name": "obesityweek.org",
+      "aliases": [
+        "obesityweek.org",
+        "www.obesityweek.org",
+        "obesityweek.org"
+      ],
+      "trust": 0.7,
+      "reach": 0.5,
+      "bias": "center",
+      "notes": "Obesityweek.org appears to be a reputable source with a neutral political bias, but its factual reporting reliability and reach could not be determined from the provided search snippets."
+    },
+    {
+      "name": "RIA Novosti",
+      "aliases": [
+        "ria.ru",
+        "www.ria.ru",
+        "ria novosti"
+      ],
+      "trust": 0.5,
+      "reach": 0.7,
+      "bias": "right-center",
+      "notes": "RIA Novosti is considered right-center biased with questionable reliability due to state propaganda and failed fact checks."
+    },
+    {
+      "name": "Geo TV",
+      "aliases": [
+        "geo.tv",
+        "www.geo.tv",
+        "geo tv"
+      ],
+      "trust": 0.6,
+      "reach": 0.7,
+      "bias": "right-center",
+      "notes": "Geo TV is a high-traffic Pakistani media outlet with mixed factual reporting and a right-center bias."
+    },
+    {
+      "name": "deperu.com",
+      "aliases": [
+        "deperu.com",
+        "www.deperu.com",
+        "deperu.com"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "untracked",
+      "notes": "There is limited information available about deperu.com's factual reporting and bias, suggesting it is not widely recognized or evaluated by major media watchdogs."
+    },
+    {
+      "name": "adalet.az",
+      "aliases": [
+        "adalet.az",
+        "www.adalet.az",
+        "adalet.az"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "untracked",
+      "notes": "There is insufficient information available to accurately assess the factual reporting reliability and audience reach of adalet.az."
+    },
+    {
+      "name": "Alo.rs",
+      "aliases": [
+        "alo.rs",
+        "www.alo.rs",
+        "alo.rs"
+      ],
+      "trust": 0.7,
+      "reach": 0.5,
+      "bias": "right-center",
+      "notes": "Alo.rs is considered right-center biased with generally trustworthy information, though it may require further investigation due to favorable coverage of the Serbian government."
+    },
+    {
+      "name": "Top Channel TV",
+      "aliases": [
+        "top-channel.tv",
+        "www.top-channel.tv",
+        "top channel tv"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "untracked",
+      "notes": "Top Channel TV is a regional broadcaster with limited information available on its factual reporting and bias, suggesting moderate reliability and reach."
+    },
+    {
+      "name": "T24",
+      "aliases": [
+        "t24.com.tr",
+        "www.t24.com.tr",
+        "t24"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "untracked",
+      "notes": "T24's factual reporting and political bias are not well-documented, leading to an unknown reliability rating."
+    },
+    {
+      "name": "Informer.rs",
+      "aliases": [
+        "informer.rs",
+        "www.informer.rs",
+        "informer.rs"
+      ],
+      "trust": 0.5,
+      "reach": 0.6,
+      "bias": "right",
+      "notes": "Informer.rs is known for right-wing bias and questionable credibility due to poor sourcing and sensationalized stories."
+    },
+    {
+      "name": "Express.pk",
+      "aliases": [
+        "express.pk",
+        "www.express.pk",
+        "express.pk"
+      ],
+      "trust": 0.7,
+      "reach": 0.6,
+      "bias": "center",
+      "notes": "Express.pk is considered mostly factual with medium credibility and high traffic, indicating a mainstream audience with limited press freedom in Pakistan."
+    },
+    {
+      "name": "Madhyamam",
+      "aliases": [
+        "madhyamam.com",
+        "www.madhyamam.com",
+        "madhyamam"
+      ],
+      "trust": 0.7,
+      "reach": 0.5,
+      "bias": "left-center",
+      "notes": "Madhyamam is a mainstream news outlet with a moderate reach and generally reliable factual reporting, though it may exhibit a left-center political bias."
+    },
+    {
+      "name": "Politika",
+      "aliases": [
+        "politika.rs",
+        "www.politika.rs",
+        "politika"
+      ],
+      "trust": 0.75,
+      "reach": 0.7,
+      "bias": "right-center",
+      "notes": "Politika.rs is a Serbian newspaper with a right-center bias and mostly factual reporting, enjoying high traffic and moderate credibility."
+    },
+    {
+      "name": "Mathrubhumi",
+      "aliases": [
+        "mathrubhumi.com",
+        "www.mathrubhumi.com",
+        "mathrubhumi"
+      ],
+      "trust": 0.75,
+      "reach": 0.6,
+      "bias": "center",
+      "notes": "Mathrubhumi is a mainstream Indian news outlet with a focus on factual reporting and a dedicated fact-checking team, indicating a commitment to accuracy and non-partisanship."
+    },
+    {
+      "name": "top-channel.tv",
+      "aliases": [
+        "top-channel.tv",
+        "www.top-channel.tv",
+        "top-channel.tv"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "center",
+      "notes": "Top Channel is a media outlet that provides a mix of news and entertainment, generally maintaining a moderate stance in its reporting."
+    },
+    {
+      "name": "blic.rs",
+      "aliases": [
+        "blic.rs",
+        "www.blic.rs",
+        "blic.rs"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "center",
+      "notes": "Blic.rs is a Serbian news outlet that generally provides a mix of factual reporting but may exhibit some bias in its coverage."
+    },
+    {
+      "name": "dariknews.bg",
+      "aliases": [
+        "dariknews.bg",
+        "www.dariknews.bg",
+        "dariknews.bg"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "untracked",
+      "notes": "Dariknews.bg has an unknown factuality rating and is categorized as untracked in terms of political bias."
+    },
+    {
+      "name": "interfax.ru",
+      "aliases": [
+        "interfax.ru",
+        "www.interfax.ru",
+        "interfax.ru"
+      ],
+      "trust": 0.55,
+      "reach": 0.6,
+      "bias": "right-center",
+      "notes": "Interfax.ru is a privately owned news agency in Russia with mixed factual reporting and a right-center bias."
+    },
+    {
+      "name": "dialog.ua",
+      "aliases": [
+        "dialog.ua",
+        "www.dialog.ua",
+        "dialog.ua"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "untracked",
+      "notes": "Dialog.ua has an unknown factuality rating and its political bias is also untracked, indicating a lack of clear information on its reliability and audience perspective."
+    },
+    {
+      "name": "economictimes.indiatimes.com",
+      "aliases": [
+        "economictimes.indiatimes.com",
+        "www.economictimes.indiatimes.com",
+        "economictimes.indiatimes.com"
+      ],
+      "trust": 0.75,
+      "reach": 0.65,
+      "bias": "center",
+      "notes": "The Economic Times is generally regarded as a reliable source for financial and economic news, with a tendency towards neutral reporting despite some perception of bias in opinion pieces."
+    },
+    {
+      "name": "cryptobriefing.com",
+      "aliases": [
+        "cryptobriefing.com",
+        "www.cryptobriefing.com",
+        "cryptobriefing.com"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "center",
+      "notes": "Crypto Briefing has a moderate factual reporting reliability and a center bias, indicating a balanced approach to cryptocurrency news."
+    },
+    {
+      "name": "channelnewsasia.com",
+      "aliases": [
+        "channelnewsasia.com",
+        "www.channelnewsasia.com",
+        "channelnewsasia.com"
+      ],
+      "trust": 0.85,
+      "reach": 0.7,
+      "bias": "center",
+      "notes": "Channel News Asia is rated as highly factual and least biased, making it a reliable source for news."
+    },
+    {
+      "name": "naslovi.net",
+      "aliases": [
+        "naslovi.net",
+        "www.naslovi.net",
+        "naslovi.net"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "center",
+      "notes": "Naslovi.net is a news aggregator that presents a variety of sources, leading to a moderate level of factual reporting and a balanced political bias."
+    },
+    {
+      "name": "nzherald.co.nz",
+      "aliases": [
+        "nzherald.co.nz",
+        "www.nzherald.co.nz",
+        "nzherald.co.nz"
+      ],
+      "trust": 0.75,
+      "reach": 0.7,
+      "bias": "left-center",
+      "notes": "The New Zealand Herald is considered to have high factual reporting reliability and a somewhat left-center bias, making it a reputable source in New Zealand."
+    },
+    {
+      "name": "ibtimes.com.au",
+      "aliases": [
+        "ibtimes.com.au",
+        "www.ibtimes.com.au",
+        "ibtimes.com.au"
+      ],
+      "trust": 0.65,
+      "reach": 0.5,
+      "bias": "left-center",
+      "notes": "IBTimes is rated as mostly factual with a left-center bias, indicating a tendency to favor left-leaning perspectives in its reporting."
+    },
+    {
+      "name": "tuko.co.ke",
+      "aliases": [
+        "tuko.co.ke",
+        "www.tuko.co.ke",
+        "tuko.co.ke"
+      ],
+      "trust": 0.65,
+      "reach": 0.5,
+      "bias": "center",
+      "notes": "Tuko.co.ke provides a mix of factual reporting and user-generated content, with a reputation for being generally reliable and balanced."
+    },
+    {
+      "name": "podnews.net",
+      "aliases": [
+        "podnews.net",
+        "www.podnews.net",
+        "podnews.net"
+      ],
+      "trust": 0.65,
+      "reach": 0.5,
+      "bias": "center",
+      "notes": "Podnews.net provides news and updates about the podcasting industry with a generally factual reporting style and moderate audience reach."
+    },
+    {
+      "name": "techcrunch.com",
+      "aliases": [
+        "techcrunch.com",
+        "www.techcrunch.com",
+        "techcrunch.com"
+      ],
+      "trust": 0.9,
+      "reach": 0.8,
+      "bias": "left-center",
+      "notes": "TechCrunch is a highly credible source of technology news with a left-center bias."
+    },
+    {
+      "name": "20minutos.es",
+      "aliases": [
+        "20minutos.es",
+        "www.20minutos.es",
+        "20minutos.es"
+      ],
+      "trust": 0.85,
+      "reach": 0.65,
+      "bias": "center",
+      "notes": "20minutos.es is recognized for its balanced reporting and minimal political bias, earning a high factuality rating."
+    },
+    {
+      "name": "macrumors.com",
+      "aliases": [
+        "macrumors.com",
+        "www.macrumors.com",
+        "macrumors.com"
+      ],
+      "trust": 0.7,
+      "reach": 0.6,
+      "bias": "center",
+      "notes": "MacRumors is generally considered a reliable source for Apple-related news and rumors, with a balanced approach to reporting."
+    },
+    {
+      "name": "pcworld.com",
+      "aliases": [
+        "pcworld.com",
+        "www.pcworld.com",
+        "pcworld.com"
+      ],
+      "trust": 0.6,
+      "reach": 0.5,
+      "bias": "untracked",
+      "notes": "PCWorld has an unknown bias and factuality rating, suggesting a moderate level of reliability and reach."
+    },
+    {
+      "name": "deepai.org",
+      "aliases": [
+        "deepai.org",
+        "www.deepai.org",
+        "deepai.org"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "center",
+      "notes": "DeepAI focuses on research and analysis related to media bias and factuality, suggesting a moderate level of reliability and a neutral stance."
+    },
+    {
+      "name": "nbcnewyork.com",
+      "aliases": [
+        "nbcnewyork.com",
+        "www.nbcnewyork.com",
+        "nbcnewyork.com"
+      ],
+      "trust": 0.75,
+      "reach": 0.65,
+      "bias": "left-center",
+      "notes": "NBC New York is generally trustworthy for factual reporting but may exhibit a slight liberal bias."
+    },
+    {
+      "name": "washingtontimes.com",
+      "aliases": [
+        "washingtontimes.com",
+        "www.washingtontimes.com",
+        "washingtontimes.com"
+      ],
+      "trust": 0.55,
+      "reach": 0.4,
+      "bias": "right-center",
+      "notes": "The Washington Times is rated as right-center biased with questionable factual reliability due to poor sourcing and mixed fact-check results."
+    },
+    {
+      "name": "chinadailyasia.com",
+      "aliases": [
+        "chinadailyasia.com",
+        "www.chinadailyasia.com",
+        "chinadailyasia.com"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "left",
+      "notes": "China Daily Asia is considered to have mixed factual reporting with a left-leaning bias."
+    },
+    {
+      "name": "cbsnews.com",
+      "aliases": [
+        "cbsnews.com",
+        "www.cbsnews.com",
+        "cbsnews.com"
+      ],
+      "trust": 0.75,
+      "reach": 0.65,
+      "bias": "center",
+      "notes": "CBS News is generally considered a reliable source for factual reporting, though it may exhibit some bias towards certain political perspectives."
     }
   ]
 }

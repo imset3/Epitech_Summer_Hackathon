@@ -46,6 +46,26 @@ STORY_ANALYSIS_SCHEMA: dict[str, Any] = {
                 "additionalProperties": False,
             },
         },
+        "common_facts": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Stable facts corroborated by at least two independent sources in this cluster.",
+        },
+        "single_source_claims": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Material claims that appear to come from only one source or one source family.",
+        },
+        "uncertain_claims": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Claims that need more evidence, context, or external verification.",
+        },
+        "source_report_focus": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "One short note per source describing what that outlet emphasized.",
+        },
         "source_notes": {
             "type": "array",
             "items": {"type": "string"},
@@ -59,6 +79,10 @@ STORY_ANALYSIS_SCHEMA: dict[str, Any] = {
         "most_supported_version",
         "compiled_body",
         "volatile_elements",
+        "common_facts",
+        "single_source_claims",
+        "uncertain_claims",
+        "source_report_focus",
         "source_notes",
     ],
     "additionalProperties": False,
@@ -149,6 +173,10 @@ Rules:
 - Produce a real recap body, not just a headline. The body should compile the event, location, timing, consequences, official response, witness claims, uncertainty, and follow-up actions when present.
 - The compiled_body should normally be 1 paragraph of 5 to 9 sentences. Use 2 paragraphs only if the story is dense.
 - Put disputed or volatile details in volatile_elements so the report can display a separate conflict section.
+- Put corroborated facts in common_facts. Each common fact should be supported by at least two independent sources in the cluster.
+- Put claims with only one visible source in single_source_claims.
+- Put weak, unresolved, or externally unverified claims in uncertain_claims.
+- Put one source_report_focus item per major source, in the form "Source: what this outlet emphasized."
 - In compiled_body, briefly mention that a conflict exists, but do not rely on the paragraph as the only place where the conflict appears.
 - If locally detected volatile claim candidates are listed, include them in volatile_elements and mention the uncertainty in compiled_body.
 - Percentages are support estimates based on source trust/reach weights and corroboration inside this cluster. They are not mathematical proof.
@@ -190,6 +218,7 @@ _CONFLICT_HINT_RE = re.compile(
     r"\b(conflict|conflicting|disagree|disagrees|disagreement|differ|differs|different|disputed|uncertain|uncertainty|unclear|unconfirmed|not confirmed)\b",
     re.I,
 )
+_JSON_FENCE_RE = re.compile(r"^```(?:json)?\s*(.*?)\s*```$", re.I | re.S)
 
 
 def _text_detected_volatile_elements(analysis: dict[str, Any]) -> list[dict[str, str]]:
@@ -213,7 +242,153 @@ def _text_detected_volatile_elements(analysis: dict[str, Any]) -> list[dict[str,
     return []
 
 
-def _ensure_analysis_shape(analysis: dict[str, Any], cluster: StoryCluster) -> dict[str, Any]:
+def _coerce_jsonish(value: Any) -> Any:
+    if not isinstance(value, str):
+        return value
+    text = value.strip()
+    fence_match = _JSON_FENCE_RE.match(text)
+    if fence_match:
+        text = fence_match.group(1).strip()
+    if not text or text[0] not in "{[":
+        return value
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return value
+
+
+def _humanize_value(value: Any) -> str:
+    value = _coerce_jsonish(value)
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value.strip()
+    if isinstance(value, list):
+        return "; ".join(part for part in (_humanize_value(item) for item in value) if part)
+    if isinstance(value, dict):
+        for preferred_key in ("fact", "claim", "summary", "text", "description", "focus", "note", "reason"):
+            preferred = _humanize_value(value.get(preferred_key))
+            if preferred:
+                source = _humanize_value(value.get("source") or value.get("publisher"))
+                return f"{source}: {preferred}" if source else preferred
+        parts = [
+            f"{key}: {_humanize_value(item)}"
+            for key, item in value.items()
+            if _humanize_value(item)
+        ]
+        return "; ".join(parts)
+    return str(value).strip()
+
+
+def _normalize_string_list(value: Any) -> list[str]:
+    value = _coerce_jsonish(value)
+    if value is None or value == "":
+        return []
+    if isinstance(value, list):
+        return [text for text in (_humanize_value(item) for item in value) if text]
+    return [text] if (text := _humanize_value(value)) else []
+
+
+def _normalize_volatile_elements(value: Any) -> list[dict[str, str]]:
+    value = _coerce_jsonish(value)
+    if value is None or value == "":
+        return []
+    if isinstance(value, dict):
+        value = [value]
+    if not isinstance(value, list):
+        text = _humanize_value(value)
+        return [{
+            "element": "reported detail requiring source comparison",
+            "option_1": "",
+            "option_2": text,
+            "reason": "The model returned this uncertainty as unstructured text.",
+        }] if text else []
+
+    normalized_items: list[dict[str, str]] = []
+    for item in value:
+        item = _coerce_jsonish(item)
+        if isinstance(item, dict):
+            normalized_item = {
+                "element": _humanize_value(item.get("element") or item.get("claim") or item.get("detail") or "detail"),
+                "option_1": _humanize_value(item.get("option_1") or item.get("version_1") or item.get("supported") or ""),
+                "option_2": _humanize_value(item.get("option_2") or item.get("version_2") or item.get("disputed") or ""),
+                "reason": _humanize_value(item.get("reason") or item.get("note") or item.get("explanation") or ""),
+            }
+        else:
+            text = _humanize_value(item)
+            normalized_item = {
+                "element": "reported detail requiring source comparison",
+                "option_1": "",
+                "option_2": text,
+                "reason": "The model returned this uncertainty as unstructured text.",
+            }
+        if normalized_item["option_1"] or normalized_item["option_2"] or normalized_item["reason"]:
+            normalized_items.append(normalized_item)
+    return normalized_items
+
+
+def _representative_article_notes(cluster: StoryCluster, limit: int = 6) -> list[str]:
+    return [
+        f"{article.source.name}: {article.title}"
+        for article in cluster.representative_articles[:limit]
+    ]
+
+
+def _first_sentence(value: str) -> str:
+    value = value.strip()
+    if not value:
+        return ""
+    sentences = _first_sentences(value, limit=1)
+    return sentences[0] if sentences else value
+
+
+def _fill_analysis_fallbacks(normalized: dict[str, Any], cluster: StoryCluster) -> None:
+    if not normalized["common_facts"]:
+        if normalized["most_supported_version"]:
+            normalized["common_facts"] = [normalized["most_supported_version"]]
+        elif normalized["compiled_body"]:
+            normalized["common_facts"] = [_first_sentence(normalized["compiled_body"])]
+        elif cluster.articles:
+            normalized["common_facts"] = [
+                f"This cluster groups {len(cluster.articles)} article(s) from {cluster.source_count} independent source(s) around the same reported story."
+            ]
+
+    if not normalized["single_source_claims"]:
+        source_counts = {
+            article.source.name: sum(1 for candidate in cluster.articles if candidate.source.name == article.source.name)
+            for article in cluster.articles
+        }
+        normalized["single_source_claims"] = [
+            f"{article.source.name}: {article.title}"
+            for article in cluster.articles
+            if source_counts.get(article.source.name, 0) == 1
+        ][:3]
+
+    if not normalized["uncertain_claims"]:
+        reasons = [
+            item.get("reason", "")
+            for item in normalized["volatile_elements"]
+            if item.get("reason")
+        ]
+        normalized["uncertain_claims"] = reasons[:3] or cluster.guardrail_notes[:3]
+
+    if not normalized["source_report_focus"]:
+        normalized["source_report_focus"] = _representative_article_notes(cluster)
+
+    if not normalized["source_notes"]:
+        normalized["source_notes"] = normalized["source_report_focus"][:]
+
+
+def _ensure_analysis_shape(analysis: dict[str, Any] | str, cluster: StoryCluster) -> dict[str, Any]:
+    analysis = _coerce_jsonish(analysis)
+    if not isinstance(analysis, dict):
+        analysis = {}
+
+    for key in ("compiled_body", "most_supported_version", "headline"):
+        nested = _coerce_jsonish(analysis.get(key))
+        if isinstance(nested, dict):
+            analysis = {**analysis, **{nested_key: nested_value for nested_key, nested_value in nested.items() if nested_value}}
+
     defaults: dict[str, Any] = {
         "cluster_id": cluster.cluster_id,
         "headline": f"Story #{cluster.cluster_id}",
@@ -221,29 +396,26 @@ def _ensure_analysis_shape(analysis: dict[str, Any], cluster: StoryCluster) -> d
         "most_supported_version": "",
         "compiled_body": "",
         "volatile_elements": [],
+        "common_facts": [],
+        "single_source_claims": [],
+        "uncertain_claims": [],
+        "source_report_focus": [],
         "source_notes": [],
     }
     normalized = {**defaults, **analysis}
     normalized["cluster_id"] = int(normalized.get("cluster_id") or cluster.cluster_id)
-    if isinstance(normalized["volatile_elements"], list):
-        normalized["volatile_elements"] = [
-            item for item in normalized["volatile_elements"]
-            if isinstance(item, dict)
-            and (
-                str(item.get("option_1", "")).strip()
-                or str(item.get("option_2", "")).strip()
-                or str(item.get("reason", "")).strip()
-            )
-        ]
-    else:
-        normalized["volatile_elements"] = []
+    normalized["headline"] = _humanize_value(normalized.get("headline")) or f"Story #{cluster.cluster_id}"
+    normalized["most_supported_version"] = _humanize_value(normalized.get("most_supported_version"))
+    normalized["compiled_body"] = _humanize_value(normalized.get("compiled_body"))
+    for key in ("common_facts", "single_source_claims", "uncertain_claims", "source_report_focus", "source_notes"):
+        normalized[key] = _normalize_string_list(normalized.get(key))
+    normalized["volatile_elements"] = _normalize_volatile_elements(normalized.get("volatile_elements"))
     for detected_item in _detected_volatile_elements(cluster):
         if not any(item.get("element") == detected_item["element"] for item in normalized["volatile_elements"]):
             normalized["volatile_elements"].append(detected_item)
     if not normalized["volatile_elements"]:
         normalized["volatile_elements"].extend(_text_detected_volatile_elements(normalized))
-    if not isinstance(normalized["source_notes"], list):
-        normalized["source_notes"] = []
+    _fill_analysis_fallbacks(normalized, cluster)
     return normalized
 
 
@@ -253,29 +425,37 @@ def analyze_cluster_with_api(cluster: StoryCluster, model: str | None = None) ->
     except ModuleNotFoundError as exc:
         raise RuntimeError("The openai package is not installed. Run: pip install -r requirements.txt") from exc
 
-    client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-    selected_model = model or os.environ.get("OPENAI_MODEL", "gpt-5.5")
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise RuntimeError("OPENAI_API_KEY environment variable not set.")
+    client = OpenAI(api_key=api_key)
+    selected_model = model or os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 
-    response = client.responses.create(
-        model=selected_model,
-        input=[
-            {
-                "role": "system",
-                "content": _system_prompt(),
-            },
-            {"role": "user", "content": _make_prompt(cluster)},
-        ],
-        text={
-            "format": {
-                "type": "json_schema",
-                "name": "story_analysis",
-                "schema": STORY_ANALYSIS_SCHEMA,
-                "strict": True,
-            }
-        },
-    )
-
-    return _ensure_analysis_shape(json.loads(response.output_text), cluster)
+    last_exc: Exception | None = None
+    for attempt in range(3):
+        try:
+            response = client.chat.completions.create(
+                model=selected_model,
+                response_format={"type": "json_object"},
+                messages=[
+                    {"role": "system", "content": _system_prompt()},
+                    {"role": "user", "content": _make_prompt(cluster)},
+                ],
+                temperature=0.2,
+                max_tokens=1500,
+            )
+            raw_text = response.choices[0].message.content or "{}"
+            return _ensure_analysis_shape(json.loads(raw_text), cluster)
+        except Exception as exc:
+            exc_str = str(exc)
+            if "429" in exc_str or "rate_limit" in exc_str.lower() or "RateLimitError" in type(exc).__name__:
+                wait = 2 ** attempt * 5  # 5s, 10s, 20s
+                print(f"OpenAI rate limit hit (attempt {attempt+1}/3). Retrying in {wait}s...", file=sys.stderr)
+                time.sleep(wait)
+                last_exc = exc
+            else:
+                raise RuntimeError(f"OpenAI API error: {exc}") from exc
+    raise RuntimeError(f"OpenAI API rate limit exceeded after retries: {last_exc}")
 
 
 def analyze_cluster_with_local_llm(
@@ -289,7 +469,8 @@ def analyze_cluster_with_local_llm(
     prompt = (
         f"{_make_prompt(cluster)}\n\n"
         "Return only one JSON object with these keys: cluster_id, headline, coherence_rating, "
-        "most_supported_version, compiled_body, volatile_elements, source_notes."
+        "most_supported_version, compiled_body, volatile_elements, common_facts, "
+        "single_source_claims, uncertain_claims, source_report_focus, source_notes."
     )
     payload = {
         "model": selected_model,
@@ -473,11 +654,15 @@ def analyze_cluster(
     raise ValueError(f"Unknown LLM provider: {provider}")
 
 
-def _support_percentages(cluster: StoryCluster) -> dict[str, float]:
-    total = sum(article.source.support_weight for article in cluster.articles) or 1.0
+def _source_support_percentages(cluster: StoryCluster) -> dict[str, float]:
+    source_weights = {
+        article.source.name: article.source.support_weight
+        for article in cluster.representative_articles
+    }
+    total = sum(source_weights.values()) or 1.0
     return {
-        article.article_id: round((article.source.support_weight / total) * 100, 1)
-        for article in cluster.articles
+        source_name: round((weight / total) * 100, 1)
+        for source_name, weight in source_weights.items()
     }
 
 
@@ -496,19 +681,23 @@ def _first_sentences(text: str, limit: int = 2) -> list[str]:
 
 
 def _extract_casualty_claims(cluster: StoryCluster) -> list[tuple[str, float, str]]:
-    percentages = _support_percentages(cluster)
+    percentages = _source_support_percentages(cluster)
     claims: dict[str, tuple[float, list[str]]] = {}
+    counted_sources: set[str] = set()
 
     for article in cluster.articles:
-        for sentence in _first_sentences(article.body, limit=10):
+        if article.source.name in counted_sources:
+            continue
+        for sentence in _first_sentences(article.analysis_text, limit=10):
             claim = _casualty_claim(sentence)
             if claim is None:
                 continue
             current_weight, sources = claims.get(claim, (0.0, []))
             claims[claim] = (
-                current_weight + percentages[article.article_id],
+                current_weight + percentages.get(article.source.name, 0.0),
                 [*sources, article.source.name],
             )
+            counted_sources.add(article.source.name)
             break
 
     sorted_claims = sorted(
@@ -542,7 +731,7 @@ def _make_dry_run_body(cluster: StoryCluster) -> tuple[str, list[dict[str, str]]
     detail_sentences: list[str] = []
     seen: set[str] = set()
     for article in sorted(cluster.articles, key=lambda a: a.source.support_weight, reverse=True):
-        for sentence in _first_sentences(article.body, limit=3):
+        for sentence in _first_sentences(article.analysis_text, limit=3):
             clean = re.sub(r"\s+", " ", sentence).strip()
             key = clean.casefold()
             if key not in seen:
@@ -587,6 +776,28 @@ def analyze_cluster_dry_run(cluster: StoryCluster) -> dict[str, Any]:
     sources = ", ".join(cluster.distinct_sources)
     first_title = titles[0] if titles else f"Story #{cluster.cluster_id}"
     body, volatile_elements = _make_dry_run_body(cluster)
+    common_facts = [
+        f"Reported by {cluster.source_count} independent source(s): {sources}.",
+        f"Weighted source support is {cluster.weighted_support:.2f} with similarity coverage {cluster.similarity_coverage:.2f}.",
+    ]
+    source_frequencies = {
+        article.source.name: sum(1 for candidate in cluster.articles if candidate.source.name == article.source.name)
+        for article in cluster.articles
+    }
+    single_source_claims = [
+        f"{article.source.name}: {article.title}"
+        for article in cluster.articles
+        if source_frequencies.get(article.source.name, 0) == 1
+    ][:3]
+    uncertain_claims = [
+        item.get("reason", "")
+        for item in volatile_elements
+        if item.get("reason")
+    ]
+    source_report_focus = [
+        f"{article.source.name}: {article.title}"
+        for article in cluster.representative_articles
+    ]
 
     return {
         "cluster_id": cluster.cluster_id,
@@ -598,5 +809,9 @@ def analyze_cluster_dry_run(cluster: StoryCluster) -> dict[str, Any]:
         ),
         "compiled_body": body,
         "volatile_elements": volatile_elements,
+        "common_facts": common_facts,
+        "single_source_claims": single_source_claims,
+        "uncertain_claims": uncertain_claims,
+        "source_report_focus": source_report_focus,
         "source_notes": [f"{a.source.name}: {a.title}" for a in cluster.articles],
     }

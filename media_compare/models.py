@@ -46,6 +46,10 @@ class Article:
     def short_name(self) -> str:
         return f"{self.source.name}: {self.title}"
 
+    @property
+    def analysis_text(self) -> str:
+        return self.body_en or self.body
+
 
 @dataclass
 class StoryCluster:
@@ -67,8 +71,16 @@ class StoryCluster:
         return seen
 
     @property
+    def representative_articles(self) -> list[Article]:
+        representatives: dict[str, Article] = {}
+        for article in self.articles:
+            if article.source.name not in representatives:
+                representatives[article.source.name] = article
+        return list(representatives.values())
+
+    @property
     def weighted_support(self) -> float:
-        return round(sum(a.source.support_weight for a in self.articles), 3)
+        return round(sum(a.source.support_weight for a in self.representative_articles), 3)
 
     @property
     def source_count(self) -> int:
@@ -78,7 +90,8 @@ class StoryCluster:
     def trust_distribution(self) -> dict[str, int]:
         """Calculates percentage of High, Medium, and Low source trust in the cluster."""
         counts = {"high": 0, "medium": 0, "low": 0}
-        for article in self.articles:
+        representatives = self.representative_articles
+        for article in representatives:
             trust = article.source.trust
             if trust >= 0.85:
                 counts["high"] += 1
@@ -87,7 +100,7 @@ class StoryCluster:
             else:
                 counts["low"] += 1
 
-        total = len(self.articles)
+        total = len(representatives)
         if total == 0:
             return {"high": 0, "medium": 0, "low": 0}
 
@@ -129,7 +142,7 @@ class StoryCluster:
                     "dates": a.signals.dates,
                     "years": a.signals.years,
                     "locations": a.signals.locations,
-                    "text": a.body[:max_chars_per_article],
+                    "text": a.analysis_text[:max_chars_per_article],
                 }
                 for a in self.articles
             ],

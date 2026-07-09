@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 import re
 import requests
+from datetime import datetime, timezone
 from bs4 import BeautifulSoup
 from typing import List
 import newspaper
@@ -41,7 +42,14 @@ def fetch_article_data(url: str) -> tuple[str, str]:
     return "", ""
 
 
-def search_news(query: str, sources_config_path: Path, limit: int = 10) -> List[Article]:
+def search_news(
+    query: str,
+    sources_config_path: Path,
+    limit: int = 10,
+    llm_provider: str | None = None,
+    llm_model: str | None = None,
+    local_base_url: str | None = None,
+) -> List[Article]:
     """Search Google News RSS for a query, scrape contents, and return Article list."""
     encoded_query = urllib.parse.quote(query)
     
@@ -94,7 +102,14 @@ def search_news(query: str, sources_config_path: Path, limit: int = 10) -> List[
             
             # Identify source profile
             source_hint = f"{xml_source_name} {link}"
-            source_profile = detect_source(source_hint, sources)
+            source_profile = detect_source(
+                source_hint,
+                sources,
+                config_path=sources_config_path,
+                llm_provider=llm_provider,
+                llm_model=llm_model,
+                local_base_url=local_base_url,
+            )
             
             # If the source is unknown, we dynamically create a temporary SourceProfile using xml_source_name
             if source_profile.name == DEFAULT_UNKNOWN.name and xml_source_name:
@@ -152,7 +167,13 @@ def search_news(query: str, sources_config_path: Path, limit: int = 10) -> List[
     return articles
 
 
-def fetch_trending_news(sources_config_path: Path, limit: int = 15) -> List[Article]:
+def fetch_trending_news(
+    sources_config_path: Path,
+    limit: int = 15,
+    llm_provider: str | None = None,
+    llm_model: str | None = None,
+    local_base_url: str | None = None,
+) -> List[Article]:
     """Retrieve top trending news headlines from News API, Brave News API, or fallback to Google News RSS Home."""
     import os
     
@@ -191,7 +212,14 @@ def fetch_trending_news(sources_config_path: Path, limit: int = 15) -> List[Arti
                     year_str = date_str.split("-")[0] if "-" in date_str else ""
                     
                     source_hint = f"{xml_source_name} {link}"
-                    source_profile = detect_source(source_hint, sources)
+                    source_profile = detect_source(
+                        source_hint,
+                        sources,
+                        config_path=sources_config_path,
+                        llm_provider=llm_provider,
+                        llm_model=llm_model,
+                        local_base_url=local_base_url,
+                    )
                     if source_profile.name == DEFAULT_UNKNOWN.name and xml_source_name:
                         source_profile = DEFAULT_UNKNOWN.__class__(
                             name=xml_source_name,
@@ -218,7 +246,7 @@ def fetch_trending_news(sources_config_path: Path, limit: int = 15) -> List[Arti
             print(f"News API failed: {e}")
             
     # 2. Try Brave Search API (News Search)
-    elif brave_api_key:
+    if brave_api_key:
         print("Fetching trending news from Brave News API...")
         try:
             url = "https://api.search.brave.com/res/v1/news/search?q=top+news&count=10"
@@ -230,7 +258,8 @@ def fetch_trending_news(sources_config_path: Path, limit: int = 15) -> List[Arti
                     title = item.get("title", "")
                     link = item.get("url", "")
                     xml_source_name = item.get("meta_url", {}).get("hostname", "")
-                    image_url = item.get("thumbnail", {}).get("src", "")
+                    thumbnail = item.get("thumbnail") or {}
+                    image_url = thumbnail.get("src", "") if isinstance(thumbnail, dict) else str(thumbnail or "")
                     
                     if not link or not title:
                         continue
@@ -242,7 +271,14 @@ def fetch_trending_news(sources_config_path: Path, limit: int = 15) -> List[Arti
                         image_url = scraped_img
                         
                     source_hint = f"{xml_source_name} {link}"
-                    source_profile = detect_source(source_hint, sources)
+                    source_profile = detect_source(
+                        source_hint,
+                        sources,
+                        config_path=sources_config_path,
+                        llm_provider=llm_provider,
+                        llm_model=llm_model,
+                        local_base_url=local_base_url,
+                    )
                     if source_profile.name == DEFAULT_UNKNOWN.name and xml_source_name:
                         source_profile = DEFAULT_UNKNOWN.__class__(
                             name=xml_source_name,
@@ -301,7 +337,14 @@ def fetch_trending_news(sources_config_path: Path, limit: int = 15) -> List[Arti
                     body = f"{clean_title}\n\n{clean_desc}\n\n[Body content could not be retrieved]"
                 
                 source_hint = f"{xml_source_name} {link}"
-                source_profile = detect_source(source_hint, sources)
+                source_profile = detect_source(
+                    source_hint,
+                    sources,
+                    config_path=sources_config_path,
+                    llm_provider=llm_provider,
+                    llm_model=llm_model,
+                    local_base_url=local_base_url,
+                )
                 if source_profile.name == DEFAULT_UNKNOWN.name and xml_source_name:
                     source_profile = DEFAULT_UNKNOWN.__class__(
                         name=xml_source_name,
@@ -340,8 +383,8 @@ def fetch_trending_news(sources_config_path: Path, limit: int = 15) -> List[Arti
     return articles
 
 
-def extract_trending_keywords(limit: int = 40, num_keywords: int = 10) -> List[str]:
-    """Extract top trending multi-word keywords (Bigrams) from global Google News headlines to avoid basic/generic words."""
+def extract_trending_keywords_info(limit: int = 40, num_keywords: int = 10) -> dict:
+    """Extract top trending multi-word keywords from live Google News RSS headlines."""
     import collections
     
     rss_url = "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en"
@@ -350,22 +393,28 @@ def extract_trending_keywords(limit: int = 40, num_keywords: int = 10) -> List[s
     }
     
     keywords: List[str] = []
+    live = False
+    fallback_reason = ""
     try:
         response = requests.get(rss_url, headers=headers, timeout=5)
         if response.status_code != 200:
-            return ["NATO Summit", "Iran Conflict", "US Election", "Climate Crisis", "Tech Policy", "Global Economy", "Ceasefire Deal", "Cargo Plane", "Space Exploration", "Stock Market"]
-            
-        root = ET.fromstring(response.content)
-        items = root.findall(".//item")[:limit]
-        
+            fallback_reason = f"Google News RSS returned HTTP {response.status_code}"
+            response = None
+        else:
+            live = True
+
         titles_text = []
-        for item in items:
-            title = item.find("title").text if item.find("title") is not None else ""
-            source_el = item.find("source")
-            xml_source_name = source_el.text if source_el is not None else ""
-            if xml_source_name and title.endswith(f" - {xml_source_name}"):
-                title = title[:-len(f" - {xml_source_name}")].strip()
-            titles_text.append(title)
+        if response is not None:
+            root = ET.fromstring(response.content)
+            items = root.findall(".//item")[:limit]
+
+            for item in items:
+                title = item.find("title").text if item.find("title") is not None else ""
+                source_el = item.find("source")
+                xml_source_name = source_el.text if source_el is not None else ""
+                if xml_source_name and title.endswith(f" - {xml_source_name}"):
+                    title = title[:-len(f" - {xml_source_name}")].strip()
+                titles_text.append(title)
             
         # Extended stop words list
         stop_words = {
@@ -447,9 +496,22 @@ def extract_trending_keywords(limit: int = 40, num_keywords: int = 10) -> List[s
                     break
                     
     except Exception as e:
+        fallback_reason = str(e)
         print(f"Error extracting keywords: {e}")
         
     if not keywords:
         keywords = ["NATO Summit", "Iran Conflict", "US Election", "Climate Crisis", "Tech Policy", "Global Economy", "Ceasefire Deal", "Cargo Plane", "Space Exploration", "Stock Market"]
+        live = False
         
-    return keywords
+    return {
+        "keywords": keywords[:num_keywords],
+        "source": "Google News RSS",
+        "live": live,
+        "fetched_at": datetime.now(timezone.utc).isoformat(),
+        "fallback_reason": fallback_reason,
+    }
+
+
+def extract_trending_keywords(limit: int = 40, num_keywords: int = 10) -> List[str]:
+    """Backward-compatible keyword-only wrapper."""
+    return extract_trending_keywords_info(limit=limit, num_keywords=num_keywords)["keywords"]

@@ -20,7 +20,11 @@ def _selected_model(provider: str, model: str | None) -> str:
     if provider == "local":
         return os.environ.get("LOCAL_LLM_MODEL", "gemma4:e4b")
     if provider == "openai":
-        return os.environ.get("OPENAI_MODEL", "gpt-5.5")
+        return os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+    if provider == "gemini":
+        return os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+    if provider == "nim":
+        return os.environ.get("NVIDIA_NIM_MODEL", "meta/llama-3.1-8b-instruct")
     return "n/a"
 
 
@@ -61,7 +65,7 @@ def build_parser() -> argparse.ArgumentParser:
         "-q",
         type=str,
         default=None,
-        help="Query online APIs (NewsAPI, GDELT, Brave Search) in real time to fetch and compare articles.",
+        help="Query online APIs (Google News RSS, NewsAPI, GDELT, Brave Search) in real time to fetch and compare articles.",
     )
     parser.add_argument(
         "--sources",
@@ -85,7 +89,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--model",
         type=str,
         default=None,
-        help="Model name. OpenAI defaults to OPENAI_MODEL or gpt-5.5; local defaults to LOCAL_LLM_MODEL or gemma4:e4b",
+        help="Model name. OpenAI defaults to OPENAI_MODEL or gpt-4o-mini; local defaults to LOCAL_LLM_MODEL or gemma4:e4b",
     )
     parser.add_argument(
         "--provider",
@@ -108,6 +112,18 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=20,
         help="Seconds to wait when fetching each URL from a URL list file. Default: 20",
+    )
+    parser.add_argument(
+        "--query-variants",
+        type=int,
+        default=5,
+        help="Number of expanded search query variants to try for --query API search. Default: 5",
+    )
+    parser.add_argument(
+        "--max-articles",
+        type=int,
+        default=60,
+        help="Maximum unique article URLs to scrape for --query API search. Default: 60",
     )
     parser.add_argument(
         "--extractor",
@@ -160,6 +176,9 @@ def main(argv: list[str] | None = None) -> int:
     fetch_errors: list[str] = []
     articles = []
     input_kind = "folder"
+    provider = "dry-run" if args.dry_run else (args.provider or os.environ.get("LLM_PROVIDER", "openai"))
+    selected_model = _selected_model(provider, args.model)
+    selected_model_arg = selected_model if selected_model != "n/a" else None
 
     if args.query:
         input_kind = "api-search"
@@ -168,9 +187,21 @@ def main(argv: list[str] | None = None) -> int:
             sources,
             timeout=args.fetch_timeout,
             extractor=args.extractor,
+            config_path=args.sources,
+            query_variants=args.query_variants,
+            max_articles=args.max_articles,
+            llm_provider=provider,
+            llm_model=selected_model_arg,
+            local_base_url=args.local_base_url,
         )
     elif args.input.is_dir():
-        articles = load_articles(args.input, sources)
+        articles = load_articles(
+            args.input,
+            sources,
+            llm_provider=provider,
+            llm_model=selected_model_arg,
+            local_base_url=args.local_base_url,
+        )
     else:
         input_kind = "url-list"
         articles, fetch_errors = load_articles_from_url_file(
@@ -178,6 +209,10 @@ def main(argv: list[str] | None = None) -> int:
             sources,
             timeout=args.fetch_timeout,
             extractor=args.extractor,
+            config_path=args.sources,
+            llm_provider=provider,
+            llm_model=selected_model_arg,
+            local_base_url=args.local_base_url,
         )
 
     if fetch_errors:
@@ -197,8 +232,6 @@ def main(argv: list[str] | None = None) -> int:
 
     clusters = cluster_articles(articles, threshold=args.threshold)
     clusters_to_analyze = [c for c in clusters if len(c.articles) >= args.min_articles][: max(0, args.top)]
-    provider = "dry-run" if args.dry_run else (args.provider or os.environ.get("LLM_PROVIDER", "openai"))
-    selected_model = _selected_model(provider, args.model)
 
     if input_kind == "url-list":
         print(f"Loaded {len(articles)} article URL(s). Detected {len(clusters)} story cluster(s).")

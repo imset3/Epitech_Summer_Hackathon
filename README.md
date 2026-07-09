@@ -36,22 +36,27 @@ StoryCompare aggregates articles from multiple news outlets covering the same ev
 | Feature | Description |
 | :--- | :--- |
 | **Real-time Trending Keywords** | Top 10 bigram keywords extracted from live global news, rotated every 6 seconds with 3D flip animation |
+| **Step Progress UI** | Search loading shows stage labels and percentage progress while the backend fetches, clusters, and analyzes |
 | **AI Model Selector** | Dropdown inside the search bar to switch between Dry-Run / OpenAI / Gemini / NVIDIA NIM / Local |
 | **API Key Settings** | Settings modal (⚙️ button) to enter API keys in-browser and save them to the local project `.env` file |
-| **Article Image Cards** | Article thumbnails from fetched metadata or article extraction, with browser-side `onerror` fallback |
+| **Local Ollama Status** | Selecting Local checks whether the configured Ollama server is reachable |
+| **Partial Warning Panel** | API or scraping warnings are shown above results instead of being hidden in server logs |
+| **Article Image Cards** | Article thumbnails from fetched metadata or article extraction, served through the local image proxy with UI fallback |
+| **Report Export** | Download the current result as Markdown or JSON from the results toolbar |
 | **Trust Distribution UI** | Each story cluster shows High / Medium / Low trust breakdown in a mini progress bar |
 | **Conflict Detector** | Volatile elements (disputed facts) listed per cluster in a detail modal |
-| **Source Bias Lanes** | Per-cluster breakdown of which outlets are Left / Center / Right leaning |
+| **Source Trust Lanes** | Per-cluster breakdown of which outlets are High / Medium / Low trust |
 | **Dry-Run Mode** | Full pipeline runs locally without any LLM API calls |
 
 ### 🧠 AI / Backend
 | Feature | Description |
 | :--- | :--- |
-| **Translation Helper** | Non-English article text can be translated with Gemini when available; the original text remains the fallback |
+| **Translation Helper** | Non-English article text can be translated with the selected provider when available; translated text is used for clustering and LLM prompts, with original text as fallback |
 | **Semantic Clustering** | Gemini embeddings + cosine similarity, with local TF-IDF fallback when embeddings are unavailable |
 | **Agentic Source Learning** | Unknown domains trigger Brave Search + Gemini reputation check, auto-saved to `sources.json` |
+| **Rate-limit aware discovery** | NewsAPI is used sparingly for high-quality metadata while RSS, Brave, and GDELT provide broader coverage |
 | **Async Scraping** | `ThreadPoolExecutor` scrapes dozens of URLs in parallel in under 10 seconds |
-| **Multi-provider LLM** | Supports OpenAI GPT-4o, Google Gemini 2.5, NVIDIA NIM (Llama/Nemotron), and Ollama local models |
+| **Multi-provider LLM** | Supports OpenAI GPT-4o mini, Google Gemini 2.5, NVIDIA NIM (Llama/Nemotron), and Ollama local models |
 
 ---
 
@@ -62,7 +67,7 @@ StoryCompare
 ├── app.py                  ← FastAPI server (REST API + static file serving)
 ├── main.py                 ← CLI entry point (legacy batch mode)
 ├── media_compare/
-│   ├── fetcher.py          ← NewsAPI / GDELT / Brave search aggregation and parallel article fetching
+│   ├── fetcher.py          ← Google News RSS / NewsAPI / GDELT / Brave aggregation and parallel article fetching
 │   ├── search.py           ← Google News RSS fallback, trending news, and trending keywords
 │   ├── clustering.py       ← Story clustering via embedding similarity with TF-IDF fallback
 │   ├── llm.py              ← Multi-provider LLM synthesis (OpenAI / Gemini / NIM / Local / Dry-Run)
@@ -83,7 +88,7 @@ StoryCompare
 **Request flow:**
 ```
 Browser → GET /api/search?q=...
-       → fetcher.py (NewsAPI + GDELT + Brave, then parallel article extraction)
+       → fetcher.py (Google News RSS + NewsAPI + GDELT + Brave, then parallel article extraction)
        → clustering.py (embedding similarity, with TF-IDF fallback)
        → llm.py (AI synthesis per cluster)
        → confidence.py (quality scoring)
@@ -178,8 +183,23 @@ python3 main.py samples --provider local --model gemma4:e4b
 # Host machine: expose Ollama on the local network
 OLLAMA_HOST=0.0.0.0:11434 ollama serve
 
-# Teammate's machine: point to host IP
-python3 main.py sample.txt --provider local --model gemma4:e4b --local-base-url http://<HOST_IP>:11434
+# Current MacBook IP detected in this workspace: 10.10.149.115
+# Teammate's machine: point to the MacBook IP
+python3 main.py sample.txt --provider local --model gemma4:e4b --local-base-url http://10.10.149.115:11434
+```
+
+If the Wi-Fi network changes, re-check the MacBook IP with:
+
+```bash
+ifconfig | grep "inet " | grep -v 127.0.0.1
+```
+
+For the web app, set this in the server `.env` so searches use the MacBook Ollama server by default:
+
+```env
+LLM_PROVIDER=local
+LOCAL_LLM_BASE_URL=http://10.10.149.115:11434
+LOCAL_LLM_MODEL=gemma4:e4b
 ```
 
 ---
@@ -189,7 +209,7 @@ python3 main.py sample.txt --provider local --model gemma4:e4b --local-base-url 
 ### Search Bar
 - Type any news topic and press Enter or click ↑
 - **Model pill** (inside the search bar): click to switch AI provider instantly
-  - 🔬 Dry-Run · 🤖 GPT-4o / mini · 💎 Gemini 2.5 Flash/Pro · ⚡ NVIDIA NIM · 🖥️ Local
+  - 🔬 Dry-Run · 🤖 GPT-4o mini · 💎 Gemini 2.5 Flash/Pro · ⚡ NVIDIA NIM · 🖥️ Local
 
 ### Trending Keywords
 - Displayed directly below the search bar
@@ -202,16 +222,23 @@ python3 main.py sample.txt --provider local --model gemma4:e4b --local-base-url 
 - Select provider → enter API key → Save & Apply
 - Provider cards with a **key** badge already have a key loaded from `.env`
 - If `.env` already contains a provider key, selecting that model in the search bar applies it immediately
+- When opening the site from another device on the LAN, enter `CONFIG_WRITE_TOKEN` in the modal before saving settings
+- Selecting **Local** checks `/api/local-llm/status` and reports whether the Ollama endpoint is reachable
 - Supported providers: **Dry-Run**, **OpenAI**, **Gemini**, **NVIDIA NIM**, **Local**
 
 ### Story Cards
-- Each card shows: article thumbnail image, trust status badge (Verified / Mixed / Speculative), and source count
+- Each card shows: article thumbnail image, trust status badge, source count, representative publishers, date range, and fact/conflict status
+- The results toolbar displays partial fetch warnings and Markdown/JSON download buttons
 - Click a card to open the **Detail Modal**:
+  - Common facts
+  - Volatile conflicts (disputed facts across sources)
+  - Single-source information
+  - Uncertain information
+  - Per-source reporting focus
   - AI-generated multi-source recap
   - Confidence score
   - Trust distribution bar (High / Medium / Low %)
-  - Volatile conflicts (disputed facts across sources)
-  - Source bias lanes (Left / Center / Right)
+  - Source trust lanes (High / Medium / Low)
 
 ---
 
@@ -221,11 +248,13 @@ All endpoints are served by FastAPI at `http://localhost:8000`.
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/api/search?q=<query>&limit=8` | Search & analyze news articles |
+| `GET` | `/api/search?q=<query>&limit=12&variants=5&max_articles=60&analysis_limit=3` | Search & analyze news articles |
 | `GET` | `/api/trending` | Fetch & analyze trending news clusters |
-| `GET` | `/api/trending-keywords?num=10` | Get top trending keyword bigrams |
+| `GET` | `/api/trending-keywords?num=10` | Get live Google News RSS keyword bigrams with source/live status |
 | `GET` | `/api/config` | Get current AI provider config |
 | `POST` | `/api/config` | Set AI provider, API key, and model; writes to `.env` only from localhost unless `CONFIG_WRITE_TOKEN` is used |
+| `GET` | `/api/local-llm/status` | Check whether the configured Ollama-compatible local LLM server is reachable |
+| `GET` | `/api/image-proxy?url=<image_url>` | Fetch an external article image through the local backend |
 | `GET` | `/api/sources` | List registered source trust profiles |
 
 ### POST `/api/config` body
@@ -249,16 +278,18 @@ X-Config-Token: change_this_for_lan_config_writes
 
 ## Core Engine Upgrades
 
-Six architectural improvements over the baseline:
+Architectural improvements over the baseline:
 
 | Component | Before | After | Benefit |
 | :--- | :--- | :--- | :--- |
 | **Translation** | None | Gemini translation helper with original-text fallback | Non-English article text can be normalized when Gemini is configured |
 | **Scraper** | Sequential synchronous loop | `ThreadPoolExecutor` async scraping | Dozens of URLs scraped in < 10 seconds |
-| **Image Fetching** | No article images | Metadata/top-image extraction with UI fallback | Story cards can show thumbnails when sources expose them |
+| **Image Fetching** | No article images | Metadata/top-image extraction + backend image proxy + UI fallback | Story cards can show thumbnails even when direct hotlinking is blocked |
+| **NewsAPI Usage** | Every query variant hit multiple pages | Original/exact query only, page 1, short cache, and 429 cooldown | Keeps NewsAPI useful without exhausting rate limits during demos |
 | **Guardrails** | Noisy regex scanning | Strict local cleanups + stopword blacklist | Zero API overhead, accurate volatile detection |
 | **Source DB** | Static manually-maintained JSON | Agentic Brave Search + Gemini reputation check | Auto-discovers and caches unknown publishers |
-| **Clustering** | TF-IDF-only bag-of-words | Gemini semantic embeddings + cosine similarity, with TF-IDF fallback | Cross-phrasing and multilingual story matching while still working without Gemini embeddings |
+| **Clustering** | TF-IDF-only bag-of-words | Translated article text + Gemini semantic embeddings + cosine similarity, with TF-IDF fallback | Cross-phrasing and multilingual story matching while still working without Gemini embeddings |
+| **Support Scoring** | Article-count based weighting | Independent-source weighting for support, trust distribution, and conflict percentages | Duplicate articles from one outlet no longer inflate confidence |
 
 ---
 

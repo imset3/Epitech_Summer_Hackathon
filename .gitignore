@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 .env
 reports/
+scratch/
 .idea
 .venv
 media_compare/__pycache__
