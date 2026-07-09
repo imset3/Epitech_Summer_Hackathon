@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function modelMatchesProvider(provider, model) {
         if (!model) return true;
         if (provider === "dry-run") return model === "";
-        if (provider === "openai") return model === "gpt-4o-mini";
+        if (provider === "openai") return model.startsWith("gpt-") || model.startsWith("o1-") || model.startsWith("o3-");
         if (provider === "gemini") return model.startsWith("gemini-");
         if (provider === "nim") return model.includes("/") || model.startsWith("nvidia-");
         if (provider === "local") return !model.startsWith("gpt-") && !model.startsWith("gemini-") && !model.includes("/");

@@ -917,6 +917,42 @@
       "reach": 0.65,
       "bias": "center",
       "notes": "CBS News is generally considered a reliable source for factual reporting, though it may exhibit some bias towards certain political perspectives."
+    },
+    {
+      "name": "thecooldown.com",
+      "aliases": [
+        "thecooldown.com",
+        "www.thecooldown.com",
+        "thecooldown.com"
+      ],
+      "trust": 0.65,
+      "reach": 0.5,
+      "bias": "center",
+      "notes": "The Cool Down is rated as mostly factual, citing credible sources but occasionally relying on subjective references."
+    },
+    {
+      "name": "foxweather.com",
+      "aliases": [
+        "foxweather.com",
+        "www.foxweather.com",
+        "foxweather.com"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "untracked",
+      "notes": "Foxweather.com is a weather-focused site associated with Fox News, which has a reputation for low factual reporting and right-leaning bias."
+    },
+    {
+      "name": "dailymail.com",
+      "aliases": [
+        "dailymail.com",
+        "www.dailymail.com",
+        "dailymail.com"
+      ],
+      "trust": 0.5,
+      "reach": 0.7,
+      "bias": "right",
+      "notes": "The Daily Mail is known for its sensationalism and questionable factual reporting, leading to a low credibility rating."
     }
   ]
 }
