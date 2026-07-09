@@ -1208,7 +1208,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         try {
-            const response = await fetch("/api/trending-keywords?num=10");
+            const response = await fetch(`/api/trending-keywords?num=10&_t=${Date.now()}`);
             const data = await response.json();
             const keywords = data.keywords || [];
             updateTrendingStatus(data);
