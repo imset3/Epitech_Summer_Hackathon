@@ -177,6 +177,7 @@ Rules:
 - Put claims with only one visible source in single_source_claims.
 - Put weak, unresolved, or externally unverified claims in uncertain_claims.
 - Put one source_report_focus item per major source, in the form "Source: what this outlet emphasized."
+- Put source_notes only for source-quality caveats, independence/reprint warnings, extraction limits, or verification context. Do not repeat source_report_focus here.
 - In compiled_body, briefly mention that a conflict exists, but do not rely on the paragraph as the only place where the conflict appears.
 - If locally detected volatile claim candidates are listed, include them in volatile_elements and mention the uncertainty in compiled_body.
 - Percentages are support estimates based on source trust/reach weights and corroboration inside this cluster. They are not mathematical proof.
@@ -376,7 +377,16 @@ def _fill_analysis_fallbacks(normalized: dict[str, Any], cluster: StoryCluster) 
         normalized["source_report_focus"] = _representative_article_notes(cluster)
 
     if not normalized["source_notes"]:
-        normalized["source_notes"] = normalized["source_report_focus"][:]
+        notes: list[str] = []
+        if cluster.source_count < len(cluster.articles):
+            notes.append(
+                f"{len(cluster.articles)} articles come from {cluster.source_count} unique source(s), so repeated outlets are not counted as fully independent support."
+            )
+        if any(article.source.trust < 0.7 for article in cluster.articles):
+            notes.append("Some sources in this cluster have medium or low trust scores; verify specific claims against higher-trust outlets before relying on them.")
+        if cluster.guardrail_notes:
+            notes.extend(cluster.guardrail_notes[:2])
+        normalized["source_notes"] = notes[:4]
 
 
 def _ensure_analysis_shape(analysis: dict[str, Any] | str, cluster: StoryCluster) -> dict[str, Any]:

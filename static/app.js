@@ -313,7 +313,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (analysis.source_notes.length === 0) {
-            analysis.source_notes = analysis.source_report_focus.slice(0, 6);
+            const sourceCount = sources.length || cluster.source_count || 0;
+            const articleCount = articles.length || 0;
+            if (articleCount > sourceCount && sourceCount > 0) {
+                analysis.source_notes.push(`${articleCount} articles come from ${sourceCount} unique source(s), so repeated outlets are not counted as fully independent support.`);
+            }
+            if ((cluster.guardrail_notes || []).length > 0) {
+                analysis.source_notes.push(...cluster.guardrail_notes.slice(0, 2));
+            }
         }
 
         return analysis;
@@ -1033,9 +1040,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Notes
         modalNotesList.innerHTML = "";
-        const notes = cluster.analysis.source_notes || [];
+        const focusSet = new Set((cluster.analysis.source_report_focus || []).map(item => String(item).trim().toLowerCase()));
+        const notes = (cluster.analysis.source_notes || [])
+            .filter(note => !focusSet.has(String(note).trim().toLowerCase()));
         if (notes.length === 0) {
-            modalNotesList.innerHTML = "<li>No additional source analysis notes available.</li>";
+            modalNotesList.innerHTML = "<li>No separate source-quality notes were generated beyond the per-source focus above.</li>";
         } else {
             notes.forEach(note => {
                 const li = document.createElement("li");
