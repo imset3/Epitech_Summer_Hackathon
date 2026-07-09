@@ -953,6 +953,66 @@
       "reach": 0.7,
       "bias": "right",
       "notes": "The Daily Mail is known for its sensationalism and questionable factual reporting, leading to a low credibility rating."
+    },
+    {
+      "name": "thehill.com",
+      "aliases": [
+        "thehill.com",
+        "www.thehill.com",
+        "thehill.com"
+      ],
+      "trust": 0.65,
+      "reach": 0.6,
+      "bias": "center",
+      "notes": "The Hill is generally considered to have balanced reporting with a low bias, though it has faced criticism for some opinion pieces promoting unproven claims."
+    },
+    {
+      "name": "journalrecord.com",
+      "aliases": [
+        "journalrecord.com",
+        "www.journalrecord.com",
+        "journalrecord.com"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "center",
+      "notes": "Journal Record is generally reliable but may have occasional issues with sourcing and transparency."
+    },
+    {
+      "name": "m.economictimes.com",
+      "aliases": [
+        "m.economictimes.com",
+        "www.m.economictimes.com",
+        "m.economictimes.com"
+      ],
+      "trust": 0.6,
+      "reach": 0.7,
+      "bias": "center",
+      "notes": "The Economic Times has a mixed reputation with low credibility ratings, but it often presents information neutrally, allowing readers to form their own conclusions."
+    },
+    {
+      "name": "news.meaww.com",
+      "aliases": [
+        "news.meaww.com",
+        "www.news.meaww.com",
+        "news.meaww.com"
+      ],
+      "trust": 0.65,
+      "reach": 0.7,
+      "bias": "right-center",
+      "notes": "Meaww is considered mostly factual with a right-center bias, indicating a moderate level of reliability and a significant audience reach."
+    },
+    {
+      "name": "usnews.com",
+      "aliases": [
+        "usnews.com",
+        "www.usnews.com",
+        "usnews.com"
+      ],
+      "trust": 0.75,
+      "reach": 0.7,
+      "bias": "left-center",
+      "notes": "U.S. News & World Report is generally considered a reliable source with a left-center bias, known for its rankings and analysis."
     }
   ]
 }
