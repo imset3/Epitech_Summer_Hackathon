@@ -581,11 +581,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function stageForProgress(value) {
-        if (value < 22) return "Searching NewsAPI, GDELT, Brave, and Google News...";
-        if (value < 48) return "Scraping article pages and extracting metadata...";
-        if (value < 66) return "Clustering articles by story similarity...";
-        if (value < 90) return "Running AI analysis and conflict detection...";
-        if (value < 97) return "Large search still running. Waiting for the server response...";
+        if (value < 12) return "Preparing query variants and source settings...";
+        if (value < 24) return "Collecting candidates from Google News RSS, Brave, GDELT, and NewsAPI...";
+        if (value < 36) return "Deduplicating article URLs and preserving metadata/images...";
+        if (value < 50) return "Fetching article pages and recovering snippets when pages are blocked...";
+        if (value < 62) return "Extracting article text, dates, publishers, and images...";
+        if (value < 72) return "Clustering related articles into story groups...";
+        if (value < 82) return "Scoring source trust and independent-source support...";
+        if (value < 92) return "Running the selected AI model for synthesis and conflict checks...";
+        if (value < 97) return "Large search still running. Waiting for final server response...";
         return "Finalizing verification report...";
     }
 
