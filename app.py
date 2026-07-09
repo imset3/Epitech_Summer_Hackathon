@@ -504,6 +504,11 @@ async def proxy_image(url: str = Query(..., description="External image URL to f
         raise HTTPException(status_code=502, detail=f"Could not proxy remote image: {exc}") from exc
 
 
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return Response(status_code=204)
+
+
 # HTML Frontend routing
 @app.get("/")
 async def get_index():
