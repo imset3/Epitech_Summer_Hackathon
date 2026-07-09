@@ -1,6 +1,6 @@
-# StoryCompare — News Story Bias & Fact-Checking Engine
+# Common Ground — News Story Bias & Fact-Checking Engine
 
-**StoryCompare** is a journalism-grade web platform that searches real-time global news, clusters articles covering the same story, evaluates publisher reliability, detects conflicting details, and produces neutral AI-powered fact-checking summaries.
+**Common Ground** is a journalism-grade web platform that searches real-time global news, clusters articles covering the same story, evaluates publisher reliability, detects conflicting details, and produces neutral AI-powered fact-checking summaries.
 
 ---
 
@@ -21,7 +21,7 @@
 
 ## Overview
 
-StoryCompare aggregates articles from multiple news outlets covering the same event, then analyzes:
+Common Ground aggregates articles from multiple news outlets covering the same event, then analyzes:
 
 - **Source trust distribution** — how many High / Medium / Low reliability outlets reported the story
 - **Volatile conflicts** — disputed facts across articles (e.g., different casualty numbers)
@@ -63,7 +63,7 @@ StoryCompare aggregates articles from multiple news outlets covering the same ev
 ## Architecture
 
 ```
-StoryCompare
+Common Ground
 ├── app.py                  ← FastAPI server (REST API + static file serving)
 ├── main.py                 ← CLI entry point (legacy batch mode)
 ├── media_compare/

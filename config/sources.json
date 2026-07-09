@@ -1421,6 +1421,90 @@
       "reach": 0.8,
       "bias": "center",
       "notes": "Pew Research is highly regarded for its factual reporting and is considered to have a center bias."
+    },
+    {
+      "name": "thehindu.com",
+      "aliases": [
+        "thehindu.com",
+        "www.thehindu.com",
+        "thehindu.com"
+      ],
+      "trust": 0.75,
+      "reach": 0.8,
+      "bias": "left-center",
+      "notes": "The Hindu is regarded as a mostly factual news source with a left-center bias and high credibility in India."
+    },
+    {
+      "name": "tandfonline.com",
+      "aliases": [
+        "tandfonline.com",
+        "www.tandfonline.com",
+        "tandfonline.com"
+      ],
+      "trust": 0.85,
+      "reach": 0.6,
+      "bias": "center",
+      "notes": "Taylor & Francis Online is rated high for factual reporting due to its rigorous peer review process and is considered a pro-science source."
+    },
+    {
+      "name": "Brookings Institution",
+      "aliases": [
+        "brookings.edu",
+        "www.brookings.edu",
+        "brookings institution"
+      ],
+      "trust": 0.85,
+      "reach": 0.4,
+      "bias": "left-center",
+      "notes": "The Brookings Institution is a highly credible research organization known for its extensive work in social sciences and policy analysis, with a left-center bias."
+    },
+    {
+      "name": "wikiwand.com",
+      "aliases": [
+        "wikiwand.com",
+        "www.wikiwand.com",
+        "wikiwand.com"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "center",
+      "notes": "Wikiwand provides a visually enhanced interface for Wikipedia content, maintaining a neutral stance but relying on Wikipedia's factual reporting."
+    },
+    {
+      "name": "hurriyetdailynews.com",
+      "aliases": [
+        "hurriyetdailynews.com",
+        "www.hurriyetdailynews.com",
+        "hurriyetdailynews.com"
+      ],
+      "trust": 0.5,
+      "reach": 0.7,
+      "bias": "right",
+      "notes": "Hurriyet Daily News has a mixed factual reporting reliability and is rated as having a right-leaning bias."
+    },
+    {
+      "name": "newsday.com",
+      "aliases": [
+        "newsday.com",
+        "www.newsday.com",
+        "newsday.com"
+      ],
+      "trust": 0.85,
+      "reach": 0.6,
+      "bias": "left-center",
+      "notes": "Newsday is a reputable newspaper known for high factual reporting and a left-center political bias, primarily serving the Long Island and New York City areas."
+    },
+    {
+      "name": "euronews.com",
+      "aliases": [
+        "euronews.com",
+        "www.euronews.com",
+        "euronews.com"
+      ],
+      "trust": 0.7,
+      "reach": 0.6,
+      "bias": "left-center",
+      "notes": "Euronews is considered a mostly factual news source with a left-center bias, serving a significant audience across Europe."
     }
   ]
 }

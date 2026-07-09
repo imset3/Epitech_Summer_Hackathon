@@ -738,15 +738,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function slugify(value) {
-        return (value || "storycompare-report")
+        return (value || "commonground-report")
             .toLowerCase()
             .replace(/[^a-z0-9가-힣]+/gi, "-")
             .replace(/^-+|-+$/g, "")
-            .slice(0, 60) || "storycompare-report";
+            .slice(0, 60) || "commonground-report";
     }
 
     function reportMarkdown() {
-        const lines = [`# StoryCompare Report`, "", `Query: ${currentQuery || "Untitled"}`, ""];
+        const lines = [`# Common Ground Report`, "", `Query: ${currentQuery || "Untitled"}`, ""];
         if (currentWarnings.length) {
             lines.push("## Partial Fetch Warnings", "");
             currentWarnings.forEach(warning => lines.push(`- ${warning}`));
