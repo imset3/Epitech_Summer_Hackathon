@@ -1133,6 +1133,294 @@
       "reach": 0.8,
       "bias": "right-center",
       "notes": "Newsweek is generally reliable with a right-center bias, making it suitable for a diversified news diet."
+    },
+    {
+      "name": "twitchy.com",
+      "aliases": [
+        "twitchy.com",
+        "www.twitchy.com",
+        "twitchy.com"
+      ],
+      "trust": 0.58,
+      "reach": 0.65,
+      "bias": "right",
+      "notes": "Twitchy is a conservative news aggregation site known for its hyper-partisan right bias and mixed factual reporting reliability."
+    },
+    {
+      "name": "politicalwire.com",
+      "aliases": [
+        "politicalwire.com",
+        "www.politicalwire.com",
+        "politicalwire.com"
+      ],
+      "trust": 0.75,
+      "reach": 0.5,
+      "bias": "center",
+      "notes": "Political Wire is considered to have minimal bias and factual reporting, making it a credible source for political news."
+    },
+    {
+      "name": "dailykos.com",
+      "aliases": [
+        "dailykos.com",
+        "www.dailykos.com",
+        "dailykos.com"
+      ],
+      "trust": 0.55,
+      "reach": 0.5,
+      "bias": "left",
+      "notes": "Daily Kos is known for its strong left bias and has received mixed ratings for factual reporting due to occasional misleading claims."
+    },
+    {
+      "name": "pressherald.com",
+      "aliases": [
+        "pressherald.com",
+        "www.pressherald.com",
+        "pressherald.com"
+      ],
+      "trust": 0.85,
+      "reach": 0.6,
+      "bias": "left-center",
+      "notes": "The Portland Press-Herald is rated high for factual reporting and has a clean fact-check record, indicating a reliable reputation."
+    },
+    {
+      "name": "theepochtimes.com",
+      "aliases": [
+        "theepochtimes.com",
+        "www.theepochtimes.com",
+        "theepochtimes.com"
+      ],
+      "trust": 0.65,
+      "reach": 0.5,
+      "bias": "right",
+      "notes": "The Epoch Times is generally trustworthy for factual information but tends to favor conservative viewpoints."
+    },
+    {
+      "name": "wmtw.com",
+      "aliases": [
+        "wmtw.com",
+        "www.wmtw.com",
+        "wmtw.com"
+      ],
+      "trust": 1.0,
+      "reach": 0.4,
+      "bias": "center",
+      "notes": "WMTW is a highly credible news source with a least biased rating, primarily serving the Portland, Maine area."
+    },
+    {
+      "name": "donsurber.substack.com",
+      "aliases": [
+        "donsurber.substack.com",
+        "www.donsurber.substack.com",
+        "donsurber.substack.com"
+      ],
+      "trust": 0.55,
+      "reach": 0.45,
+      "bias": "right",
+      "notes": "The publisher exhibits a right-leaning bias with a moderate level of factual reporting, often critiquing mainstream media narratives."
+    },
+    {
+      "name": "rollingstone.com",
+      "aliases": [
+        "rollingstone.com",
+        "www.rollingstone.com",
+        "rollingstone.com"
+      ],
+      "trust": 0.75,
+      "reach": 0.65,
+      "bias": "left",
+      "notes": "Rolling Stone is considered left-biased with high factual reporting reliability, making it a reputable source for entertainment and cultural commentary."
+    },
+    {
+      "name": "ms.now",
+      "aliases": [
+        "ms.now",
+        "www.ms.now",
+        "ms.now"
+      ],
+      "trust": 0.55,
+      "reach": 0.45,
+      "bias": "left",
+      "notes": "MS Now is considered left-biased with mixed factual reporting reliability, often favoring establishment left narratives."
+    },
+    {
+      "name": "marklevinshow.com",
+      "aliases": [
+        "marklevinshow.com",
+        "www.marklevinshow.com",
+        "marklevinshow.com"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "right",
+      "notes": "The Mark Levin Show is known for its conservative viewpoints and has a moderate level of factual reporting reliability."
+    },
+    {
+      "name": "connexionfrance.com",
+      "aliases": [
+        "connexionfrance.com",
+        "www.connexionfrance.com",
+        "connexionfrance.com"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "untracked",
+      "notes": "Connexion France appears to have a moderate level of factual reporting reliability and an average audience reach, but its political bias is not clearly defined."
+    },
+    {
+      "name": "hi99.com",
+      "aliases": [
+        "hi99.com",
+        "www.hi99.com",
+        "hi99.com"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "untracked",
+      "notes": "The publisher has a low factual reporting reliability and an untracked political bias, indicating a need for cautious consumption of its content."
+    },
+    {
+      "name": "letour.fr",
+      "aliases": [
+        "letour.fr",
+        "www.letour.fr",
+        "letour.fr"
+      ],
+      "trust": 0.7,
+      "reach": 0.5,
+      "bias": "center",
+      "notes": "Letour.fr is a reputable source for cycling news, generally maintaining a balanced perspective."
+    },
+    {
+      "name": "theparisnews.com",
+      "aliases": [
+        "theparisnews.com",
+        "www.theparisnews.com",
+        "theparisnews.com"
+      ],
+      "trust": 0.65,
+      "reach": 0.4,
+      "bias": "center",
+      "notes": "The Paris News is rated as mostly factual but lacks external hyperlinks for verification, indicating a moderate level of reliability."
+    },
+    {
+      "name": "cyprustribute.site",
+      "aliases": [
+        "cyprustribute.site",
+        "www.cyprustribute.site",
+        "cyprustribute.site"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "untracked",
+      "notes": "The publisher appears to have low factual reliability and an unclear political bias."
+    },
+    {
+      "name": "abc7ny.com",
+      "aliases": [
+        "abc7ny.com",
+        "www.abc7ny.com",
+        "abc7ny.com"
+      ],
+      "trust": 0.85,
+      "reach": 0.75,
+      "bias": "center",
+      "notes": "ABC7 New York is a highly credible source with a strong reputation for factual reporting and a balanced political stance."
+    },
+    {
+      "name": "fox5ny.com",
+      "aliases": [
+        "fox5ny.com",
+        "www.fox5ny.com",
+        "fox5ny.com"
+      ],
+      "trust": 0.85,
+      "reach": 0.75,
+      "bias": "center",
+      "notes": "Fox 5 New York is considered to have high factual reporting reliability and a center bias, making it a reputable source for news."
+    },
+    {
+      "name": "New York Daily News",
+      "aliases": [
+        "nydailynews.com",
+        "www.nydailynews.com",
+        "new york daily news"
+      ],
+      "trust": 0.75,
+      "reach": 0.6,
+      "bias": "left-center",
+      "notes": "The New York Daily News is rated as left-center biased with a high factual reporting record."
+    },
+    {
+      "name": "archives.gov",
+      "aliases": [
+        "archives.gov",
+        "www.archives.gov",
+        "archives.gov"
+      ],
+      "trust": 0.85,
+      "reach": 0.6,
+      "bias": "center",
+      "notes": "The National Security Archive is considered highly factual and least biased, primarily focusing on declassified documents."
+    },
+    {
+      "name": "cnbc.com",
+      "aliases": [
+        "cnbc.com",
+        "www.cnbc.com",
+        "cnbc.com"
+      ],
+      "trust": 0.75,
+      "reach": 0.85,
+      "bias": "left-center",
+      "notes": "CNBC is considered a reliable source with a left-center bias, providing mostly factual reporting and a significant audience reach."
+    },
+    {
+      "name": "firerescue1.com",
+      "aliases": [
+        "firerescue1.com",
+        "www.firerescue1.com",
+        "firerescue1.com"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "center",
+      "notes": "FireRescue1.com provides information relevant to the firefighting community, but its factual reporting reliability is moderate and it has a niche audience."
+    },
+    {
+      "name": "ems1.com",
+      "aliases": [
+        "ems1.com",
+        "www.ems1.com",
+        "ems1.com"
+      ],
+      "trust": 0.6,
+      "reach": 0.4,
+      "bias": "center",
+      "notes": "Ems1.com is a moderately reliable source with a balanced political stance, primarily focusing on emergency services and related news."
+    },
+    {
+      "name": "sfexaminer.com",
+      "aliases": [
+        "sfexaminer.com",
+        "www.sfexaminer.com",
+        "sfexaminer.com"
+      ],
+      "trust": 0.8,
+      "reach": 0.5,
+      "bias": "left-center",
+      "notes": "The San Francisco Examiner is rated as left-center biased with high factual reporting reliability based on proper sourcing."
+    },
+    {
+      "name": "pewresearch.org",
+      "aliases": [
+        "pewresearch.org",
+        "www.pewresearch.org",
+        "pewresearch.org"
+      ],
+      "trust": 0.9,
+      "reach": 0.8,
+      "bias": "center",
+      "notes": "Pew Research is highly regarded for its factual reporting and is considered to have a center bias."
     }
   ]
 }

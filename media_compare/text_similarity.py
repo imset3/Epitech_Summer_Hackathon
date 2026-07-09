@@ -82,7 +82,10 @@ def _get_embedding(text: str) -> list[float]:
             data = json.loads(response.read().decode("utf-8"))
             return data["embedding"]["values"]
     except Exception as exc:
-        print(f"Warning: Failed to fetch embedding from Gemini (falling back to TF-IDF): {exc}", file=sys.stderr)
+        # Suppress 429 rate limit warnings to keep terminal logs clean,
+        # since TF-IDF fallback is the expected silent alternative.
+        if "429" not in str(exc):
+            print(f"Warning: Failed to fetch embedding from Gemini (falling back to TF-IDF): {exc}", file=sys.stderr)
         return []
 
 
